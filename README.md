@@ -1,4 +1,4 @@
-# Moodle Descargas + Anticopia (WebExtension)
+# Moodle Guardian (Descargas + Anticopia) (WebExtension)
 
 Extension para Firefox/Chrome que hace dos cosas:
 
