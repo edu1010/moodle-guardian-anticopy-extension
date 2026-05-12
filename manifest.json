@@ -1,0 +1,28 @@
+{
+  "manifest_version": 2,
+  "name": "Moodle Descargas + Anticopia",
+  "version": "0.1.0",
+  "description": "Automatiza la descarga de entregas en Moodle y analiza similitud entre trabajos.",
+  "permissions": [
+    "activeTab",
+    "tabs",
+    "storage",
+    "*://*/mod/assign/*",
+    "*://*/*mod/assign/*"
+  ],
+  "background": {
+    "scripts": ["background.js"],
+    "persistent": false
+  },
+  "browser_action": {
+    "default_title": "Moodle Descargas + Anticopia",
+    "default_popup": "popup/popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://*/mod/assign/*", "*://*/*mod/assign/*"],
+      "js": ["contentScript.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Moodle Descargas + Anticopia</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <main class="panel">
+      <h1>Moodle Descargas + Anticopia</h1>
+
+      <button id="downloadButton" class="primary">
+        Descargar todas las entregas
+      </button>
+
+      <label class="toggle">
+        <input id="folderMode" type="checkbox" checked />
+        Forzar “descargar en carpetas”
+      </label>
+
+      <button id="analyzerButton" class="secondary">
+        Abrir analizador de similitud
+      </button>
+
+      <p id="status" class="status" aria-live="polite"></p>
+    </main>
+
+    <script src="popup.js"></script>
+  </body>
+</html>

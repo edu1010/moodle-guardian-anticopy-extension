@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Analizador de similitud</title>
+    <link rel="stylesheet" href="analyzer.css" />
+  </head>
+  <body>
+    <main class="layout">
+      <header>
+        <h1>Analizador de similitud de entregas</h1>
+        <p>
+          Puedes cargar la carpeta descomprimida o el ZIP descargado desde Moodle.
+          Tambien se procesan ZIP internos de cada entrega.
+        </p>
+      </header>
+
+      <section class="card">
+        <div class="field">
+          <label for="moodleZipInput">ZIP principal de Moodle (opcional)</label>
+          <input id="moodleZipInput" type="file" accept=".zip" />
+        </div>
+
+        <div class="field">
+          <label for="submissionsInput">Carpeta de entregas</label>
+          <input id="submissionsInput" type="file" webkitdirectory multiple />
+        </div>
+
+        <div class="field">
+          <label for="statementInput">Enunciado (opcional, txt/md/html)</label>
+          <input id="statementInput" type="file" accept=".txt,.md,.html,.htm" />
+        </div>
+
+        <div class="grid">
+          <label class="field">
+            Umbral de sospecha (0.00-1.00)
+            <input id="thresholdInput" type="number" min="0" max="1" step="0.01" value="0.72" />
+          </label>
+
+          <label class="field">
+            Linea comun si aparece en >= X% de entregas
+            <input id="commonLinePctInput" type="number" min="0" max="100" step="1" value="60" />
+          </label>
+        </div>
+
+        <p class="status">
+          Nota: si se detectan archivos .rar o .7z se listaran como no analizados.
+        </p>
+        <button id="analyzeButton">Analizar similitud</button>
+        <p id="status" class="status" aria-live="polite"></p>
+      </section>
+
+      <section class="card">
+        <h2>Resultados</h2>
+        <div id="summary"></div>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Alumno A</th>
+                <th>Alumno B</th>
+                <th>Similitud</th>
+                <th>Tokens compartidos (muestra)</th>
+              </tr>
+            </thead>
+            <tbody id="resultsBody"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <script src="analyzer.js"></script>
+  </body>
+</html>
