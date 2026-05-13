@@ -8,7 +8,7 @@ Extension para Firefox/Chrome que hace dos cosas:
 ## Soporte de entregas en ZIP/RAR/7z
 
 - Puedes cargar directamente el ZIP principal descargado desde Moodle.
-- Si dentro hay ZIPs de alumnos, se descomprimen automaticamente (con limite de seguridad).
+- Si dentro hay ZIPs de alumnos, se descomprimen automaticamente (sin limite por numero de entregas, con salvaguardas por archivo/profundidad).
 - Si dentro hay `.rar` o `.7z`, se marcan como "no analizados" y se listan en el resumen.
 
 ## Estructura
@@ -34,7 +34,7 @@ Extension para Firefox/Chrome que hace dos cosas:
 4. En el analizador:
    - opcion A: selecciona el ZIP principal de Moodle,
    - opcion B: selecciona la carpeta descomprimida.
-5. (Opcional) anade el enunciado (`.txt/.md/.html`).
+5. (Opcional) anade archivos de parte comun en todas las entregas (varios `.txt/.md/.html` o un `.zip` con ellos).
 6. Ajusta umbral y porcentaje de lineas comunes.
 7. Ejecuta el analisis.
 

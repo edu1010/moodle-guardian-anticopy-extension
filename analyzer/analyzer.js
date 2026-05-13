@@ -52,7 +52,7 @@ const ZIP_EXTENSION = "zip";
 const UNSUPPORTED_ARCHIVE_EXTENSIONS = new Set(["rar", "7z"]);
 const MAX_ARCHIVE_DEPTH = 5;
 const MAX_UNCOMPRESSED_ENTRY_BYTES = 25 * 1024 * 1024;
-const MAX_TOTAL_UNCOMPRESSED_BYTES = 250 * 1024 * 1024;
+const MAX_TOTAL_UNCOMPRESSED_BYTES = Number.POSITIVE_INFINITY;
 
 function setStatus(message, isError = false) {
   statusNode.textContent = message;
@@ -461,20 +461,88 @@ function buildCommonLineSet(documents, commonPercentage) {
   return common;
 }
 
-async function readStatementLines(file) {
-  if (!file) {
+function addCommonBaseLines(targetSet, lines) {
+  for (const line of lines) {
+    if (line.length >= 10) {
+      targetSet.add(line);
+    }
+  }
+}
+
+async function ingestCommonBaseBytes(path, bytes, commonBaseSet, stats, depth) {
+  if (depth > MAX_ARCHIVE_DEPTH) {
+    pushSample(stats.zipWarnings, `Profundidad maxima alcanzada en parte comun: ${path}`);
+    return;
+  }
+
+  const ext = getExtension(path);
+  if (ext === ZIP_EXTENSION) {
+    const innerBase = dirname(path);
+    const zipEntries = await readZipEntries(toArrayBuffer(bytes), path, stats);
+    for (const entry of zipEntries) {
+      const joinedPath = joinPath(innerBase, entry.path);
+      await ingestCommonBaseBytes(joinedPath, entry.bytes, commonBaseSet, stats, depth + 1);
+    }
+    return;
+  }
+
+  if (UNSUPPORTED_ARCHIVE_EXTENSIONS.has(ext)) {
+    stats.unsupportedArchives += 1;
+    pushSample(stats.unsupportedArchiveSamples, path);
+    return;
+  }
+
+  if (!canReadTextByExtension(path)) {
+    return;
+  }
+
+  const text = decodeTextBytes(bytes);
+  addCommonBaseLines(commonBaseSet, extractTextLines(path, text));
+}
+
+async function readStatementLines(filesLike) {
+  const files = Array.from(filesLike || []).filter(Boolean);
+  if (files.length === 0) {
     return new Set();
   }
-  const ext = getExtension(file.name);
-  if (!(ext === "txt" || ext === "md" || ext === "html" || ext === "htm")) {
-    throw new Error("El enunciado debe estar en txt, md o html.");
+
+  const commonBaseSet = new Set();
+  const stats = createStats();
+
+  for (const file of files) {
+    const filePath = normalizePath(file.webkitRelativePath || file.name);
+    const ext = getExtension(filePath);
+
+    if (ext === ZIP_EXTENSION) {
+      const bytes = new Uint8Array(await file.arrayBuffer());
+      await ingestCommonBaseBytes(filePath, bytes, commonBaseSet, stats, 0);
+      continue;
+    }
+
+    if (UNSUPPORTED_ARCHIVE_EXTENSIONS.has(ext)) {
+      stats.unsupportedArchives += 1;
+      pushSample(stats.unsupportedArchiveSamples, filePath);
+      continue;
+    }
+
+    if (!canReadTextByExtension(filePath) && !(file.type || "").startsWith("text/")) {
+      continue;
+    }
+
+    let text = await file.text();
+    if (ext === "html" || ext === "htm") {
+      text = htmlToText(text);
+    }
+    addCommonBaseLines(commonBaseSet, splitToNormalizedLines(text));
   }
-  let text = await file.text();
-  if (ext === "html" || ext === "htm") {
-    text = htmlToText(text);
+
+  if (commonBaseSet.size === 0) {
+    throw new Error(
+      "La parte comun no contiene texto analizable. Usa txt/md/html o ZIP con esos archivos."
+    );
   }
-  const lines = splitToNormalizedLines(text).filter((line) => line.length >= 10);
-  return new Set(lines);
+
+  return commonBaseSet;
 }
 
 function tokenize(lines) {
@@ -615,7 +683,7 @@ function renderResults(pairs, threshold, docsCount, commonLinesCount, statementL
   let summaryText =
     `Entregas analizadas: ${docsCount}. ` +
     `Lineas comunes eliminadas: ${commonLinesCount}. ` +
-    `Lineas del enunciado eliminadas: ${statementLinesCount}. ` +
+    `Lineas de la parte comun eliminadas: ${statementLinesCount}. ` +
     `Pares por encima del umbral: ${suspicious.length}. ` +
     `ZIP internos procesados: ${stats.nestedZipCount}. `;
 
@@ -680,9 +748,8 @@ analyzeButton.addEventListener("click", async () => {
       return;
     }
 
-    setStatus("Eliminando contenido comun y enunciado...");
-    const statementFile = statementInput.files?.[0];
-    const statementLines = await readStatementLines(statementFile);
+    setStatus("Eliminando contenido comun y parte comun base...");
+    const statementLines = await readStatementLines(statementInput.files);
     const commonLines = buildCommonLineSet(nonEmptyDocs, commonPct);
 
     const filteredDocs = nonEmptyDocs.map((doc) => ({
@@ -693,7 +760,7 @@ analyzeButton.addEventListener("click", async () => {
     const docsWithSignal = filteredDocs.filter((doc) => doc.filteredLines.length >= 12);
     if (docsWithSignal.length < 2) {
       setStatus(
-        "Tras quitar texto comun/enunciado queda poca senal. Baja el % de lineas comunes o revisa archivos.",
+        "Tras quitar texto comun y parte comun base queda poca senal. Baja el % de lineas comunes o revisa archivos.",
         true
       );
       return;
