@@ -15,14 +15,20 @@ function sendToContentScript(tabId, payload, callback) {
 }
 
 function injectContentScript(tabId, callback) {
-  if (typeof ext.tabs.executeScript !== "function") {
+  if (!ext.scripting || typeof ext.scripting.executeScript !== "function") {
     callback(new Error("No se puede inyectar script en este navegador."));
     return;
   }
-  ext.tabs.executeScript(tabId, { file: "/contentScript.js", runAt: "document_idle" }, () => {
-    const err = ext.runtime.lastError;
-    callback(err || null);
-  });
+  ext.scripting.executeScript(
+    {
+      target: { tabId },
+      files: ["contentScript.js"]
+    },
+    () => {
+      const err = ext.runtime.lastError;
+      callback(err || null);
+    }
+  );
 }
 
 function triggerDownload(tabId, forceFolderMode, sendResponse) {
