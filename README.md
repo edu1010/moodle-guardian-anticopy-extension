@@ -19,12 +19,15 @@ Extension para Firefox/Chrome que hace dos cosas:
 - `popup/`: interfaz rapida.
 - `analyzer/`: analisis de similitud local.
 
-## Instalacion (Firefox)
+## Instalacion (Chrome)
 
-1. Abre `about:debugging`.
-2. Entra en **This Firefox**.
-3. Pulsa **Load Temporary Add-on...**.
-4. Selecciona `manifest.json`.
+> Esta rama (`chrome-mv3`) esta adaptada para Chrome (Manifest V3).
+
+1. Abre `chrome://extensions/`.
+2. Activa **Developer mode** (arriba a la derecha).
+3. Pulsa **Load unpacked**.
+4. Selecciona la carpeta raiz del proyecto (donde esta `manifest.json`).
+5. Si haces cambios en el codigo, pulsa **Reload** en la tarjeta de la extension.
 
 ## Uso
 
