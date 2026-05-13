@@ -49,10 +49,15 @@ const SUPPORTED_TEXT_EXTENSIONS = new Set([
 ]);
 
 const ZIP_EXTENSION = "zip";
-const UNSUPPORTED_ARCHIVE_EXTENSIONS = new Set(["rar", "7z"]);
+const RAR_EXTENSION = "rar";
+const SEVEN_Z_EXTENSION = "7z";
+const SUPPORTED_ARCHIVE_EXTENSIONS = new Set([ZIP_EXTENSION, RAR_EXTENSION, SEVEN_Z_EXTENSION]);
+const UNSUPPORTED_ARCHIVE_EXTENSIONS = new Set();
 const MAX_ARCHIVE_DEPTH = 5;
 const MAX_UNCOMPRESSED_ENTRY_BYTES = 25 * 1024 * 1024;
 const MAX_TOTAL_UNCOMPRESSED_BYTES = Number.POSITIVE_INFINITY;
+const LIBARCHIVE_MODULE_PATH = "./vendor/libarchive/libarchive.js";
+let libArchivePromise = null;
 
 function setStatus(message, isError = false) {
   statusNode.textContent = message;
@@ -174,6 +179,18 @@ function addLinesToSubmission(submissionMap, filePath, lines) {
 function canReadTextByExtension(path) {
   const ext = getExtension(path);
   return SUPPORTED_TEXT_EXTENSIONS.has(ext);
+}
+
+function canReadArchiveByExtension(path) {
+  const ext = getExtension(path);
+  return SUPPORTED_ARCHIVE_EXTENSIONS.has(ext);
+}
+
+async function getLibArchive() {
+  if (!libArchivePromise) {
+    libArchivePromise = import(LIBARCHIVE_MODULE_PATH).then((mod) => mod.Archive);
+  }
+  return libArchivePromise;
 }
 
 function decodeTextBytes(bytes) {
@@ -341,6 +358,69 @@ async function readZipEntries(arrayBuffer, archiveLabel, stats) {
   return extractedEntries;
 }
 
+async function readArchiveEntries(path, bytes, stats) {
+  const ext = getExtension(path);
+  if (ext === ZIP_EXTENSION) {
+    return readZipEntries(toArrayBuffer(bytes), path, stats);
+  }
+
+  const fileName = normalizePath(path).split("/").filter(Boolean).pop() || `archive.${ext || "bin"}`;
+  const archiveFile = new File([bytes], fileName, { type: "application/octet-stream" });
+  let archive = null;
+
+  try {
+    const Archive = await getLibArchive();
+    archive = await Archive.open(archiveFile);
+
+    const extracted = [];
+    await archive.extractFiles((entry) => {
+      if (entry?.file && typeof entry.file.arrayBuffer === "function") {
+        extracted.push(entry);
+      }
+    });
+
+    const extractedEntries = [];
+    for (const entry of extracted) {
+      const fileName = normalizePath(entry.file.name || "");
+      const entryPath =
+        fileName.includes("/") ? fileName : normalizePath(joinPath(entry.path || "", fileName));
+      if (!entryPath || entryPath.endsWith("/")) {
+        continue;
+      }
+
+      const entryBytes = new Uint8Array(await entry.file.arrayBuffer());
+      if (entryBytes.byteLength > MAX_UNCOMPRESSED_ENTRY_BYTES) {
+        pushSample(stats.zipWarnings, `Archivo muy grande omitido: ${entryPath}`);
+        continue;
+      }
+
+      stats.totalUncompressedBytes += entryBytes.byteLength;
+      if (stats.totalUncompressedBytes > MAX_TOTAL_UNCOMPRESSED_BYTES) {
+        throw new Error("Se alcanzo el limite de descompresion de seguridad.");
+      }
+
+      extractedEntries.push({
+        path: entryPath,
+        bytes: entryBytes
+      });
+    }
+    return extractedEntries;
+  } catch (error) {
+    stats.unsupportedArchives += 1;
+    pushSample(stats.unsupportedArchiveSamples, path);
+    pushSample(stats.zipWarnings, `No se pudo descomprimir: ${path}`);
+    return [];
+  } finally {
+    if (archive && typeof archive.close === "function") {
+      try {
+        await archive.close();
+      } catch {
+        // No-op: cierre defensivo del worker interno.
+      }
+    }
+  }
+}
+
 function extractTextLines(path, text) {
   const ext = getExtension(path);
   const normalizedText = ext === "html" || ext === "htm" ? htmlToText(text) : text;
@@ -354,11 +434,11 @@ async function ingestBytes(path, bytes, submissionMap, stats, depth) {
   }
 
   const ext = getExtension(path);
-  if (ext === ZIP_EXTENSION) {
+  if (SUPPORTED_ARCHIVE_EXTENSIONS.has(ext)) {
     stats.nestedZipCount += 1;
     const innerBase = dirname(path);
-    const zipEntries = await readZipEntries(toArrayBuffer(bytes), path, stats);
-    for (const entry of zipEntries) {
+    const archiveEntries = await readArchiveEntries(path, bytes, stats);
+    for (const entry of archiveEntries) {
       const joinedPath = joinPath(innerBase, entry.path);
       await ingestBytes(joinedPath, entry.bytes, submissionMap, stats, depth + 1);
     }
@@ -386,7 +466,7 @@ async function ingestFileObject(file, submissionMap, stats) {
   const filePath = normalizePath(file.webkitRelativePath || file.name);
   const ext = getExtension(filePath);
 
-  if (ext === ZIP_EXTENSION) {
+  if (SUPPORTED_ARCHIVE_EXTENSIONS.has(ext)) {
     const bytes = new Uint8Array(await file.arrayBuffer());
     await ingestBytes(filePath, bytes, submissionMap, stats, 0);
     return;
@@ -476,10 +556,10 @@ async function ingestCommonBaseBytes(path, bytes, commonBaseSet, stats, depth) {
   }
 
   const ext = getExtension(path);
-  if (ext === ZIP_EXTENSION) {
+  if (SUPPORTED_ARCHIVE_EXTENSIONS.has(ext)) {
     const innerBase = dirname(path);
-    const zipEntries = await readZipEntries(toArrayBuffer(bytes), path, stats);
-    for (const entry of zipEntries) {
+    const archiveEntries = await readArchiveEntries(path, bytes, stats);
+    for (const entry of archiveEntries) {
       const joinedPath = joinPath(innerBase, entry.path);
       await ingestCommonBaseBytes(joinedPath, entry.bytes, commonBaseSet, stats, depth + 1);
     }
@@ -513,7 +593,7 @@ async function readStatementLines(filesLike) {
     const filePath = normalizePath(file.webkitRelativePath || file.name);
     const ext = getExtension(filePath);
 
-    if (ext === ZIP_EXTENSION) {
+    if (SUPPORTED_ARCHIVE_EXTENSIONS.has(ext)) {
       const bytes = new Uint8Array(await file.arrayBuffer());
       await ingestCommonBaseBytes(filePath, bytes, commonBaseSet, stats, 0);
       continue;
@@ -538,7 +618,7 @@ async function readStatementLines(filesLike) {
 
   if (commonBaseSet.size === 0) {
     throw new Error(
-      "La parte comun no contiene texto analizable. Usa txt/md/html o ZIP con esos archivos."
+      "La parte comun no contiene texto analizable. Usa txt/md/html o comprimidos ZIP/RAR/7z con esos archivos."
     );
   }
 
@@ -685,9 +765,9 @@ function renderResults(pairs, threshold, docsCount, commonLinesCount, statementL
     `Lineas comunes eliminadas: ${commonLinesCount}. ` +
     `Lineas de la parte comun eliminadas: ${statementLinesCount}. ` +
     `Pares por encima del umbral: ${suspicious.length}. ` +
-    `ZIP internos procesados: ${stats.nestedZipCount}. `;
+    `Comprimidos internos procesados: ${stats.nestedZipCount}. `;
 
-  summaryText += `RAR/7z no analizados: ${stats.unsupportedArchives}.`;
+  summaryText += `Comprimidos no analizados: ${stats.unsupportedArchives}.`;
   if (stats.unsupportedArchiveSamples.length > 0) {
     summaryText += ` Ejemplos: ${stats.unsupportedArchiveSamples.join(" | ")}.`;
   }

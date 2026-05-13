@@ -28,8 +28,8 @@
         </div>
 
         <div class="field">
-          <label for="statementInput">Parte comun en todas las entregas (opcional, varios archivos o ZIP)</label>
-          <input id="statementInput" type="file" accept=".txt,.md,.html,.htm,.zip" multiple />
+          <label for="statementInput">Parte comun en todas las entregas (opcional, varios archivos o ZIP/RAR/7z)</label>
+          <input id="statementInput" type="file" accept=".txt,.md,.html,.htm,.zip,.rar,.7z" multiple />
         </div>
 
         <div class="grid">
@@ -45,7 +45,7 @@
         </div>
 
         <p class="status">
-          Nota: si se detectan archivos .rar o .7z se listaran como no analizados.
+          Nota: se intentan descomprimir ZIP/RAR/7z; si algun comprimido no puede leerse, se listara como no analizado.
         </p>
         <button id="analyzeButton">Analizar similitud</button>
         <p id="status" class="status" aria-live="polite"></p>
