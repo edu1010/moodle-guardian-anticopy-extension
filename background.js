@@ -71,7 +71,14 @@ ext.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
 
   if (message.type === "openAnalyzer") {
-    ext.tabs.create({ url: ext.runtime.getURL("analyzer/analyzer.html") });
+    const analyzerUrl = new URL(ext.runtime.getURL("analyzer/analyzer.html"));
+    if (message.downloadUrl) {
+      analyzerUrl.searchParams.set("downloadUrl", message.downloadUrl);
+    }
+    if (message.downloadName) {
+      analyzerUrl.searchParams.set("downloadName", message.downloadName);
+    }
+    ext.tabs.create({ url: analyzerUrl.toString() });
     sendResponse({ ok: true });
     return false;
   }

@@ -8,6 +8,186 @@ const statusNode = document.getElementById("status");
 const summaryNode = document.getElementById("summary");
 const resultsBody = document.getElementById("resultsBody");
 
+const ext = globalThis.browser ?? globalThis.chrome;
+const DEFAULT_LANG = "es";
+const STORAGE_LANG_KEY = "moodleGuardianLanguage";
+const TRANSLATIONS = {
+  ca: {
+    analyzerTitle: "Analitzador de similitud",
+    analyzerHeading: "Analitzador de similitud de trameses",
+    analyzerIntro:
+      "Pots carregar la carpeta descomprimida o el ZIP descarregat des de Moodle. Tambe es processen ZIP interns de cada tramesa.",
+    moodleZipLabel: "ZIP principal de Moodle (opcional)",
+    moodleZipHint:
+      "Fes servir aquest camp si tens el ZIP descarregat per Moodle. Si uses aquest ZIP, no cal seleccionar la carpeta de trameses descomprimida.",
+    submissionsFolderLabel: "Carpeta de trameses",
+    submissionsFolderHint:
+      "Fes servir aquest camp nomes si ja has descomprimit el ZIP principal i vols seleccionar la carpeta que conte les carpetes dels alumnes.",
+    commonBaseLabel: "Part comuna en totes les trameses (opcional, diversos fitxers o ZIP/RAR/7z)",
+    commonBaseHint:
+      "Selecciona aqui l'enunciat, plantilla o ZIP base comu. Es treura de la comparativa per mesurar nomes el treball propi de cada alumne.",
+    thresholdLabel: "Llindar de sospita (0.00-1.00)",
+    thresholdHint: "Nomes es mostren com a sospitoses les parelles amb una similitud igual o superior a aquest valor.",
+    commonLinesLabel: "Linia comuna si apareix en >= X% de trameses",
+    commonLinesHint:
+      "Les linies que apareixen en moltes trameses s'eliminen automaticament per reduir falsos positius per plantilla compartida.",
+    archiveNote:
+      "Nota: s'intenten descomprimir ZIP/RAR/7z; si algun comprimit no es pot llegir, es llistara com a no analitzat.",
+    analyzeButton: "Analitza similitud",
+    resultsHeading: "Resultats",
+    studentAHeader: "Alumne A",
+    studentBHeader: "Alumne B",
+    similarityHeader: "Similitud",
+    sharedShinglesHeader: "Shingles compartits (mostra)",
+    thresholdInvalid: "El llindar ha d'estar entre 0 i 1.",
+    commonPctInvalid: "El percentatge de linia comuna ha d'estar entre 0 i 100.",
+    readingSubmissions: "Llegint trameses i descomprimint ZIP...",
+    noEnoughText: "No hi ha prou text analitzable. Calen com a minim 2 trameses amb contingut.",
+    removingCommon: "Eliminant contingut comu i part comuna base...",
+    lowSignal:
+      "Despres de treure text comu i part comuna base queda poc senyal. Baixa el % de linies comunes o revisa els fitxers.",
+    calculating: "Calculant similitud entre parelles...",
+    completed: "Analisi completada. Trameses valides: {docs}. Fitxers de text: {textFiles}. Ignorats: {ignoredFiles}.",
+    unexpectedAnalysis: "Error inesperat durant l'analisi.",
+    selectSubmissions: "Selecciona carpeta de trameses o el ZIP principal de Moodle.",
+    commonBaseEmpty:
+      "La part comuna no conte text analitzable. Usa txt/md/html o comprimits ZIP/RAR/7z amb aquests fitxers.",
+    autoLoading: "Carregant automaticament el ZIP principal de Moodle...",
+    moodleStatus: "Moodle ha respost {status}",
+    emptyZip: "El ZIP descarregat des de Moodle esta buit.",
+    invalidZip: "Moodle no ha retornat un ZIP valid.",
+    autoLoaded: "ZIP principal carregat automaticament: {name}.",
+    unknownError: "error desconegut",
+    autoLoadFailed:
+      "No s'ha pogut carregar automaticament el ZIP principal. Selecciona'l manualment. Detall: {detail}",
+    noResults: "No hi ha resultats: falta text suficient per comparar.",
+    summary:
+      "Trameses analitzades: {docs}. Linies comunes eliminades: {common}. Linies de la part comuna eliminades: {statement}. Parelles per sobre del llindar: {pairs}. Comprimits interns processats: {archives}. ",
+    unsupportedArchives: "Comprimits no analitzats: {count}.",
+    examples: " Exemples: {items}.",
+    zipWarnings: " Avisos ZIP: {items}.",
+    high: "Alta",
+    medium: "Mitjana",
+    low: "Baixa"
+  },
+  es: {
+    analyzerTitle: "Analizador de similitud",
+    analyzerHeading: "Analizador de similitud de entregas",
+    analyzerIntro:
+      "Puedes cargar la carpeta descomprimida o el ZIP descargado desde Moodle. Tambien se procesan ZIP internos de cada entrega.",
+    moodleZipLabel: "ZIP principal de Moodle (opcional)",
+    moodleZipHint:
+      "Usa este campo si tienes el ZIP descargado por Moodle. Si usas este ZIP, no hace falta seleccionar la carpeta de entregas descomprimida.",
+    submissionsFolderLabel: "Carpeta de entregas",
+    submissionsFolderHint:
+      "Usa este campo solo si ya has descomprimido el ZIP principal y quieres seleccionar la carpeta que contiene las carpetas de alumnos.",
+    commonBaseLabel: "Parte comun en todas las entregas (opcional, varios archivos o ZIP/RAR/7z)",
+    commonBaseHint:
+      "Selecciona aqui el enunciado, plantilla o ZIP base comun. Se quitara de la comparativa para medir solo el trabajo propio de cada alumno.",
+    thresholdLabel: "Umbral de sospecha (0.00-1.00)",
+    thresholdHint: "Solo se muestran como sospechosos los pares con una similitud igual o superior a este valor.",
+    commonLinesLabel: "Linea comun si aparece en >= X% de entregas",
+    commonLinesHint:
+      "Las lineas que aparecen en muchas entregas se eliminan automaticamente para reducir falsos positivos por plantilla compartida.",
+    archiveNote:
+      "Nota: se intentan descomprimir ZIP/RAR/7z; si algun comprimido no puede leerse, se listara como no analizado.",
+    analyzeButton: "Analizar similitud",
+    resultsHeading: "Resultados",
+    studentAHeader: "Alumno A",
+    studentBHeader: "Alumno B",
+    similarityHeader: "Similitud",
+    sharedShinglesHeader: "Shingles compartidos (muestra)",
+    thresholdInvalid: "El umbral debe estar entre 0 y 1.",
+    commonPctInvalid: "El porcentaje de linea comun debe estar entre 0 y 100.",
+    readingSubmissions: "Leyendo entregas y descomprimiendo ZIP...",
+    noEnoughText: "No hay suficiente texto analizable. Se necesitan al menos 2 entregas con contenido.",
+    removingCommon: "Eliminando contenido comun y parte comun base...",
+    lowSignal:
+      "Tras quitar texto comun y parte comun base queda poca senal. Baja el % de lineas comunes o revisa archivos.",
+    calculating: "Calculando similitud entre parejas...",
+    completed: "Analisis completado. Entregas validas: {docs}. Archivos de texto: {textFiles}. Ignorados: {ignoredFiles}.",
+    unexpectedAnalysis: "Error inesperado durante el analisis.",
+    selectSubmissions: "Selecciona carpeta de entregas o el ZIP principal de Moodle.",
+    commonBaseEmpty:
+      "La parte comun no contiene texto analizable. Usa txt/md/html o comprimidos ZIP/RAR/7z con esos archivos.",
+    autoLoading: "Cargando automaticamente el ZIP principal de Moodle...",
+    moodleStatus: "Moodle respondio {status}",
+    emptyZip: "El ZIP descargado desde Moodle esta vacio.",
+    invalidZip: "Moodle no devolvio un ZIP valido.",
+    autoLoaded: "ZIP principal cargado automaticamente: {name}.",
+    unknownError: "error desconocido",
+    autoLoadFailed:
+      "No se pudo cargar automaticamente el ZIP principal. Seleccionalo manualmente. Detalle: {detail}",
+    noResults: "No hay resultados: falta texto suficiente para comparar.",
+    summary:
+      "Entregas analizadas: {docs}. Lineas comunes eliminadas: {common}. Lineas de la parte comun eliminadas: {statement}. Pares por encima del umbral: {pairs}. Comprimidos internos procesados: {archives}. ",
+    unsupportedArchives: "Comprimidos no analizados: {count}.",
+    examples: " Ejemplos: {items}.",
+    zipWarnings: " Avisos ZIP: {items}.",
+    high: "Alta",
+    medium: "Media",
+    low: "Baja"
+  },
+  en: {
+    analyzerTitle: "Similarity analyzer",
+    analyzerHeading: "Submission similarity analyzer",
+    analyzerIntro:
+      "You can load the extracted folder or the ZIP downloaded from Moodle. Internal ZIP files inside each submission are processed too.",
+    moodleZipLabel: "Main Moodle ZIP (optional)",
+    moodleZipHint:
+      "Use this field if you have the ZIP downloaded by Moodle. If you use this ZIP, you do not need to select the extracted submissions folder.",
+    submissionsFolderLabel: "Submissions folder",
+    submissionsFolderHint:
+      "Use this field only if you already extracted the main ZIP and want to select the folder that contains the student folders.",
+    commonBaseLabel: "Common part in all submissions (optional, multiple files or ZIP/RAR/7z)",
+    commonBaseHint:
+      "Select the statement, starter template, or common base ZIP here. It will be removed from the comparison so only each student's own work is measured.",
+    thresholdLabel: "Suspicion threshold (0.00-1.00)",
+    thresholdHint: "Only pairs with similarity equal to or above this value are shown as suspicious.",
+    commonLinesLabel: "Common line if it appears in >= X% of submissions",
+    commonLinesHint:
+      "Lines appearing in many submissions are removed automatically to reduce false positives from a shared template.",
+    archiveNote:
+      "Note: ZIP/RAR/7z archives are decompressed when possible; unreadable archives will be listed as not analyzed.",
+    analyzeButton: "Analyze similarity",
+    resultsHeading: "Results",
+    studentAHeader: "Student A",
+    studentBHeader: "Student B",
+    similarityHeader: "Similarity",
+    sharedShinglesHeader: "Shared shingles (sample)",
+    thresholdInvalid: "The threshold must be between 0 and 1.",
+    commonPctInvalid: "The common-line percentage must be between 0 and 100.",
+    readingSubmissions: "Reading submissions and decompressing ZIP files...",
+    noEnoughText: "There is not enough analyzable text. At least 2 submissions with content are required.",
+    removingCommon: "Removing common content and base common part...",
+    lowSignal:
+      "After removing common text and the base common part, too little signal remains. Lower the common-line percentage or check the files.",
+    calculating: "Calculating pairwise similarity...",
+    completed: "Analysis completed. Valid submissions: {docs}. Text files: {textFiles}. Ignored: {ignoredFiles}.",
+    unexpectedAnalysis: "Unexpected error during analysis.",
+    selectSubmissions: "Select a submissions folder or the main Moodle ZIP.",
+    commonBaseEmpty:
+      "The common part does not contain analyzable text. Use txt/md/html or ZIP/RAR/7z archives containing those files.",
+    autoLoading: "Automatically loading the main Moodle ZIP...",
+    moodleStatus: "Moodle responded with {status}",
+    emptyZip: "The ZIP downloaded from Moodle is empty.",
+    invalidZip: "Moodle did not return a valid ZIP.",
+    autoLoaded: "Main ZIP loaded automatically: {name}.",
+    unknownError: "unknown error",
+    autoLoadFailed: "Could not automatically load the main ZIP. Select it manually. Detail: {detail}",
+    noResults: "No results: not enough text to compare.",
+    summary:
+      "Submissions analyzed: {docs}. Common lines removed: {common}. Common-base lines removed: {statement}. Pairs above threshold: {pairs}. Internal archives processed: {archives}. ",
+    unsupportedArchives: "Archives not analyzed: {count}.",
+    examples: " Examples: {items}.",
+    zipWarnings: " ZIP warnings: {items}.",
+    high: "High",
+    medium: "Medium",
+    low: "Low"
+  }
+};
+let currentLang = DEFAULT_LANG;
+
 const SUPPORTED_TEXT_EXTENSIONS = new Set([
   "txt",
   "md",
@@ -58,6 +238,7 @@ const MAX_UNCOMPRESSED_ENTRY_BYTES = 25 * 1024 * 1024;
 const MAX_TOTAL_UNCOMPRESSED_BYTES = Number.POSITIVE_INFINITY;
 const LIBARCHIVE_MODULE_PATH = "./vendor/libarchive/libarchive.js";
 let libArchivePromise = null;
+let autoMoodleZipFile = null;
 
 function setStatus(message, isError = false) {
   statusNode.textContent = message;
@@ -67,6 +248,61 @@ function setStatus(message, isError = false) {
 function clearResults() {
   summaryNode.textContent = "";
   resultsBody.innerHTML = "";
+}
+
+function t(key, values = {}) {
+  const template = TRANSLATIONS[currentLang]?.[key] || TRANSLATIONS[DEFAULT_LANG][key] || key;
+  return template.replace(/\{(\w+)\}/g, (_match, name) => values[name] ?? "");
+}
+
+function storageGet(key) {
+  return new Promise((resolve) => {
+    if (!ext?.storage?.local) {
+      resolve(DEFAULT_LANG);
+      return;
+    }
+    ext.storage.local.get({ [key]: DEFAULT_LANG }, (items) => resolve(items[key]));
+  });
+}
+
+function storageSet(values) {
+  return new Promise((resolve) => {
+    if (!ext?.storage?.local) {
+      resolve();
+      return;
+    }
+    ext.storage.local.set(values, resolve);
+  });
+}
+
+function applyLanguage(lang) {
+  currentLang = TRANSLATIONS[lang] ? lang : DEFAULT_LANG;
+  document.documentElement.lang = currentLang;
+  document.querySelectorAll("[data-i18n]").forEach((node) => {
+    node.textContent = t(node.dataset.i18n);
+  });
+  document.title = t("analyzerTitle");
+  document.querySelectorAll(".lang-button").forEach((button) => {
+    button.classList.toggle("active", button.dataset.lang === currentLang);
+  });
+}
+
+async function setLanguage(lang) {
+  applyLanguage(lang);
+  await storageSet({ [STORAGE_LANG_KEY]: currentLang });
+}
+
+async function initLanguage() {
+  const lang = await storageGet(STORAGE_LANG_KEY);
+  applyLanguage(lang);
+  document.querySelectorAll(".lang-button").forEach((button) => {
+    button.addEventListener("click", () => setLanguage(button.dataset.lang));
+  });
+  ext?.storage?.onChanged?.addListener((changes, areaName) => {
+    if (areaName === "local" && changes[STORAGE_LANG_KEY]) {
+      applyLanguage(changes[STORAGE_LANG_KEY].newValue);
+    }
+  });
 }
 
 function getExtension(filename) {
@@ -79,6 +315,15 @@ function getExtension(filename) {
 
 function normalizePath(path) {
   return String(path || "").replace(/\\/g, "/");
+}
+
+function escapeHtml(value) {
+  return String(value || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 }
 
 function dirname(path) {
@@ -98,6 +343,36 @@ function joinPath(base, name) {
     return normalizePath(base);
   }
   return normalizePath(`${base}/${name}`);
+}
+
+function stripExtension(path) {
+  return String(path || "").replace(/\.[^/.]+$/, "");
+}
+
+function ensureZipFilename(name) {
+  const cleaned = String(name || "entregas-moodle").replace(/[\\/:*?"<>|]+/g, " ").trim();
+  return /\.zip$/i.test(cleaned) ? cleaned : `${cleaned || "entregas-moodle"}.zip`;
+}
+
+function removeSelectedDirectoryRoot(path) {
+  const parts = normalizePath(path).split("/").filter(Boolean);
+  if (parts.length <= 1) {
+    return normalizePath(path);
+  }
+  return parts.slice(1).join("/");
+}
+
+function cleanSubmissionLabel(value) {
+  const decoded = decodeURIComponent(String(value || "").replace(/\+/g, " "));
+  return decoded
+    .replace(/[_-]?\d+[_-]?assignsubmission[_-].*$/i, "")
+    .replace(/[_-]?assignsubmission[_-].*$/i, "")
+    .replace(/[_-]?\d+[_-]?assignfeedback[_-].*$/i, "")
+    .replace(/[_-]?assignfeedback[_-].*$/i, "")
+    .replace(/[_-]+$/g, "")
+    .replace(/[_]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 function htmlToText(html) {
@@ -128,14 +403,16 @@ function splitToNormalizedLines(text) {
 
 function getSubmissionKey(relativePath) {
   const parts = normalizePath(relativePath).split("/").filter(Boolean);
-  if (parts.length >= 3) {
-    return parts[1];
+  for (const part of parts.slice(0, -1)) {
+    if (/assignsubmission|assignfeedback/i.test(part)) {
+      return cleanSubmissionLabel(part) || part;
+    }
   }
   if (parts.length >= 2) {
-    return parts[0];
+    return cleanSubmissionLabel(parts[0]) || parts[0];
   }
   if (parts.length === 1) {
-    return parts[0].replace(/\.[^.]+$/, "");
+    return cleanSubmissionLabel(stripExtension(parts[0])) || stripExtension(parts[0]);
   }
   return "sin_carpeta";
 }
@@ -463,7 +740,9 @@ async function ingestBytes(path, bytes, submissionMap, stats, depth) {
 }
 
 async function ingestFileObject(file, submissionMap, stats) {
-  const filePath = normalizePath(file.webkitRelativePath || file.name);
+  const filePath = file.webkitRelativePath
+    ? removeSelectedDirectoryRoot(file.webkitRelativePath)
+    : normalizePath(file.name);
   const ext = getExtension(filePath);
 
   if (SUPPORTED_ARCHIVE_EXTENSIONS.has(ext)) {
@@ -493,14 +772,14 @@ async function loadSubmissionDocuments() {
   const submissionMap = new Map();
   const stats = createStats();
 
-  const moodleZipFile = moodleZipInput.files?.[0];
+  const moodleZipFile = moodleZipInput.files?.[0] || autoMoodleZipFile;
   if (moodleZipFile) {
     const bytes = new Uint8Array(await moodleZipFile.arrayBuffer());
     await ingestBytes(moodleZipFile.name, bytes, submissionMap, stats, 0);
   } else {
     const files = Array.from(submissionsInput.files || []);
     if (files.length === 0) {
-      throw new Error("Selecciona carpeta de entregas o el ZIP principal de Moodle.");
+      throw new Error(t("selectSubmissions"));
     }
 
     for (const file of files) {
@@ -513,6 +792,38 @@ async function loadSubmissionDocuments() {
     .sort((a, b) => a.id.localeCompare(b.id));
 
   return { docs, stats };
+}
+
+async function tryLoadAutomaticMoodleZip() {
+  const params = new URLSearchParams(window.location.search);
+  const downloadUrl = params.get("downloadUrl");
+  if (!downloadUrl) {
+    return;
+  }
+
+  try {
+    setStatus(t("autoLoading"));
+    const response = await fetch(downloadUrl, { credentials: "include" });
+    if (!response.ok) {
+      throw new Error(t("moodleStatus", { status: response.status }));
+    }
+
+    const arrayBuffer = await response.arrayBuffer();
+    const bytes = new Uint8Array(arrayBuffer);
+    if (bytes.byteLength === 0) {
+      throw new Error(t("emptyZip"));
+    }
+    if (bytes[0] !== 0x50 || bytes[1] !== 0x4b) {
+      throw new Error(t("invalidZip"));
+    }
+
+    const downloadName = ensureZipFilename(params.get("downloadName"));
+    autoMoodleZipFile = new File([arrayBuffer], downloadName, { type: "application/zip" });
+    setStatus(t("autoLoaded", { name: autoMoodleZipFile.name }));
+  } catch (error) {
+    autoMoodleZipFile = null;
+    setStatus(t("autoLoadFailed", { detail: error?.message || t("unknownError") }), true);
+  }
 }
 
 function buildLineFrequencyMap(documents, minLength = 18) {
@@ -543,9 +854,7 @@ function buildCommonLineSet(documents, commonPercentage) {
 
 function addCommonBaseLines(targetSet, lines) {
   for (const line of lines) {
-    if (line.length >= 10) {
-      targetSet.add(line);
-    }
+    targetSet.add(line);
   }
 }
 
@@ -617,9 +926,7 @@ async function readStatementLines(filesLike) {
   }
 
   if (commonBaseSet.size === 0) {
-    throw new Error(
-      "La parte comun no contiene texto analizable. Usa txt/md/html o comprimidos ZIP/RAR/7z con esos archivos."
-    );
+    throw new Error(t("commonBaseEmpty"));
   }
 
   return commonBaseSet;
@@ -631,7 +938,7 @@ function tokenize(lines) {
   return tokens ? tokens : [];
 }
 
-function buildNgrams(tokens, size = 3) {
+function buildNgrams(tokens, size = 5) {
   if (tokens.length < size) {
     return tokens;
   }
@@ -642,101 +949,59 @@ function buildNgrams(tokens, size = 3) {
   return grams;
 }
 
-function countTerms(terms) {
-  const tf = new Map();
-  for (const term of terms) {
-    tf.set(term, (tf.get(term) || 0) + 1);
-  }
-  return tf;
-}
-
-function buildTfIdfVectors(filteredDocs) {
-  const termFrequencies = filteredDocs.map((doc) => {
+function buildShingleVectors(filteredDocs) {
+  return filteredDocs.map((doc) => {
     const tokens = tokenize(doc.filteredLines);
-    const grams = buildNgrams(tokens, 3);
+    const grams = buildNgrams(tokens, 5);
     return {
       id: doc.id,
-      tf: countTerms(grams)
-    };
-  });
-
-  const docFreq = new Map();
-  for (const doc of termFrequencies) {
-    for (const term of doc.tf.keys()) {
-      docFreq.set(term, (docFreq.get(term) || 0) + 1);
-    }
-  }
-
-  const totalDocs = filteredDocs.length;
-  return termFrequencies.map((doc) => {
-    const weights = new Map();
-    let normSquared = 0;
-    let totalTerms = 0;
-    for (const count of doc.tf.values()) {
-      totalTerms += count;
-    }
-
-    for (const [term, count] of doc.tf.entries()) {
-      const tf = count / Math.max(1, totalTerms);
-      const df = docFreq.get(term) || 0;
-      const idf = Math.log((1 + totalDocs) / (1 + df)) + 1;
-      const weight = tf * idf;
-      weights.set(term, weight);
-      normSquared += weight * weight;
-    }
-
-    return {
-      id: doc.id,
-      weights,
-      norm: Math.sqrt(normSquared)
+      shingles: new Set(grams)
     };
   });
 }
 
-function cosineSimilaritySparse(vecA, vecB) {
-  if (vecA.norm === 0 || vecB.norm === 0) {
+function jaccardSimilarity(vecA, vecB) {
+  if (vecA.shingles.size === 0 || vecB.shingles.size === 0) {
     return 0;
   }
   const [small, large] =
-    vecA.weights.size <= vecB.weights.size ? [vecA.weights, vecB.weights] : [vecB.weights, vecA.weights];
+    vecA.shingles.size <= vecB.shingles.size ? [vecA.shingles, vecB.shingles] : [vecB.shingles, vecA.shingles];
 
-  let dot = 0;
-  for (const [term, w1] of small.entries()) {
-    const w2 = large.get(term);
-    if (w2) {
-      dot += w1 * w2;
+  let intersection = 0;
+  for (const term of small) {
+    if (large.has(term)) {
+      intersection += 1;
     }
   }
-  return dot / (vecA.norm * vecB.norm);
+  const union = vecA.shingles.size + vecB.shingles.size - intersection;
+  return union > 0 ? intersection / union : 0;
 }
 
 function sampleSharedTerms(vecA, vecB, maxTerms = 5) {
   const shared = [];
   const [small, large] =
-    vecA.weights.size <= vecB.weights.size ? [vecA.weights, vecB.weights] : [vecB.weights, vecA.weights];
+    vecA.shingles.size <= vecB.shingles.size ? [vecA.shingles, vecB.shingles] : [vecB.shingles, vecA.shingles];
 
-  for (const [term, w1] of small.entries()) {
-    const w2 = large.get(term);
-    if (w2) {
-      shared.push({ term, score: w1 + w2 });
+  for (const term of small) {
+    if (large.has(term)) {
+      shared.push(term);
     }
   }
 
   return shared
-    .sort((a, b) => b.score - a.score)
+    .sort((a, b) => b.length - a.length || a.localeCompare(b))
     .slice(0, maxTerms)
-    .map((item) => item.term)
     .join(", ");
 }
 
 function classifyScore(score) {
   if (score >= 0.85) {
-    return { label: "Alta", className: "high" };
+    return { label: t("high"), className: "high" };
   }
   if (score >= 0.72) {
-    return { label: "Media", className: "medium" };
+    return { label: t("medium"), className: "medium" };
   }
-  return { label: "Baja", className: "low" };
+  return { label: t("low"), className: "low" };
 }
 
 function compareAllPairs(vectors) {
@@ -748,7 +1013,7 @@ function compareAllPairs(vectors) {
       pairs.push({
         a: a.id,
         b: b.id,
-        score: cosineSimilaritySparse(a, b),
+        score: jaccardSimilarity(a, b),
         sharedTerms: sampleSharedTerms(a, b)
       });
     }
@@ -760,42 +1025,43 @@ function renderResults(pairs, threshold, docsCount, commonLinesCount, statementL
   clearResults();
 
   const suspicious = pairs.filter((item) => item.score >= threshold);
-  let summaryText =
-    `Entregas analizadas: ${docsCount}. ` +
-    `Lineas comunes eliminadas: ${commonLinesCount}. ` +
-    `Lineas de la parte comun eliminadas: ${statementLinesCount}. ` +
-    `Pares por encima del umbral: ${suspicious.length}. ` +
-    `Comprimidos internos procesados: ${stats.nestedZipCount}. `;
+  let summaryText = t("summary", {
+    docs: docsCount,
+    common: commonLinesCount,
+    statement: statementLinesCount,
+    pairs: suspicious.length,
+    archives: stats.nestedZipCount
+  });
 
-  summaryText += `Comprimidos no analizados: ${stats.unsupportedArchives}.`;
+  summaryText += t("unsupportedArchives", { count: stats.unsupportedArchives });
   if (stats.unsupportedArchiveSamples.length > 0) {
-    summaryText += ` Ejemplos: ${stats.unsupportedArchiveSamples.join(" | ")}.`;
+    summaryText += t("examples", { items: stats.unsupportedArchiveSamples.join(" | ") });
   }
   if (stats.zipWarnings.length > 0) {
-    summaryText += ` Avisos ZIP: ${stats.zipWarnings.join(" | ")}.`;
+    summaryText += t("zipWarnings", { items: stats.zipWarnings.join(" | ") });
   }
   summaryNode.textContent = summaryText;
 
   const rows = suspicious.length > 0 ? suspicious : pairs.slice(0, 30);
   if (rows.length === 0) {
-    resultsBody.innerHTML =
-      '<tr><td colspan="5">No hay resultados: falta texto suficiente para comparar.</td></tr>';
+    resultsBody.innerHTML = `<tr><td colspan="5">${escapeHtml(t("noResults"))}</td></tr>`;
     return;
   }
 
   resultsBody.innerHTML = rows
     .map((row, idx) => {
       const scoreLabel = classifyScore(row.score);
+      const percent = `${(row.score * 100).toFixed(1)}%`;
       return `
         <tr>
           <td>${idx + 1}</td>
-          <td>${row.a}</td>
-          <td>${row.b}</td>
+          <td>${escapeHtml(row.a)}</td>
+          <td>${escapeHtml(row.b)}</td>
           <td>
-            <strong>${row.score.toFixed(3)}</strong>
+            <strong>${percent}</strong>
             <span class="badge ${scoreLabel.className}">${scoreLabel.label}</span>
           </td>
-          <td>${row.sharedTerms || "-"}</td>
+          <td>${escapeHtml(row.sharedTerms || "-")}</td>
         </tr>
       `;
     })
@@ -808,27 +1074,24 @@ analyzeButton.addEventListener("click", async () => {
   const threshold = Number(thresholdInput.value);
   const commonPct = Number(commonLinePctInput.value);
   if (Number.isNaN(threshold) || threshold < 0 || threshold > 1) {
-    setStatus("El umbral debe estar entre 0 y 1.", true);
+    setStatus(t("thresholdInvalid"), true);
     return;
   }
   if (Number.isNaN(commonPct) || commonPct < 0 || commonPct > 100) {
-    setStatus("El porcentaje de linea comun debe estar entre 0 y 100.", true);
+    setStatus(t("commonPctInvalid"), true);
     return;
   }
 
   try {
-    setStatus("Leyendo entregas y descomprimiendo ZIP...");
+    setStatus(t("readingSubmissions"));
     const { docs, stats } = await loadSubmissionDocuments();
     const nonEmptyDocs = docs.filter((doc) => doc.lines.length > 0);
     if (nonEmptyDocs.length < 2) {
-      setStatus(
-        "No hay suficiente texto analizable. Se necesitan al menos 2 entregas con contenido.",
-        true
-      );
+      setStatus(t("noEnoughText"), true);
       return;
     }
 
-    setStatus("Eliminando contenido comun y parte comun base...");
+    setStatus(t("removingCommon"));
     const statementLines = await readStatementLines(statementInput.files);
     const commonLines = buildCommonLineSet(nonEmptyDocs, commonPct);
 
@@ -839,15 +1102,12 @@ analyzeButton.addEventListener("click", async () => {
 
     const docsWithSignal = filteredDocs.filter((doc) => doc.filteredLines.length >= 12);
     if (docsWithSignal.length < 2) {
-      setStatus(
-        "Tras quitar texto comun y parte comun base queda poca senal. Baja el % de lineas comunes o revisa archivos.",
-        true
-      );
+      setStatus(t("lowSignal"), true);
       return;
     }
 
-    setStatus("Calculando similitud entre parejas...");
-    const vectors = buildTfIdfVectors(docsWithSignal);
+    setStatus(t("calculating"));
+    const vectors = buildShingleVectors(docsWithSignal);
     const pairs = compareAllPairs(vectors);
     renderResults(
       pairs,
@@ -859,10 +1119,15 @@ analyzeButton.addEventListener("click", async () => {
     );
 
     setStatus(
-      `Analisis completado. Entregas validas: ${docsWithSignal.length}. ` +
-        `Archivos de texto: ${stats.textFiles}. Ignorados: ${stats.ignoredFiles}.`
+      t("completed", {
+        docs: docsWithSignal.length,
+        textFiles: stats.textFiles,
+        ignoredFiles: stats.ignoredFiles
+      })
     );
   } catch (error) {
-    setStatus(error?.message || "Error inesperado durante el analisis.", true);
+    setStatus(error?.message || t("unexpectedAnalysis"), true);
   }
 });
+
+initLanguage().then(tryLoadAutomaticMoodleZip);

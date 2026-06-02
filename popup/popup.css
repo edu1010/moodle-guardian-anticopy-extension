@@ -13,19 +13,33 @@ body {
   padding: 14px;
 }
 
+.topbar {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
 h1 {
-  margin: 0 0 12px;
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0;
   font-size: 16px;
   line-height: 1.3;
 }
 
 button {
-  width: 100%;
   border: 0;
   border-radius: 8px;
   padding: 10px 12px;
   font-size: 14px;
   cursor: pointer;
+}
+
+.primary,
+.secondary {
+  width: 100%;
 }
 
 .primary {
@@ -56,4 +70,36 @@ button {
 
 .status.error {
   color: #b00020;
+}
+
+.lang-switch {
+  display: flex;
+  gap: 4px;
+  flex: 0 0 auto;
+}
+
+.lang-button {
+  width: 30px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+}
+
+.lang-button.active {
+  border-color: #00796b;
+  background: #e0f2f1;
+}
+
+.flag {
+  width: 22px;
+  height: 14px;
+  display: block;
+  border: 1px solid rgba(0, 0, 0, 0.18);
+  object-fit: cover;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18);
 }

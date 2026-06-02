@@ -3,23 +3,36 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Moodle Guardian (Descargas + Anticopia)</title>
+    <title data-i18n="popupTitle">Moodle Guardian (Descargas + Anticopia)</title>
     <link rel="stylesheet" href="popup.css" />
   </head>
   <body>
     <main class="panel">
-      <h1>Moodle Guardian (Descargas + Anticopia)</h1>
+      <div class="topbar">
+        <h1 data-i18n="popupTitle">Moodle Guardian (Descargas + Anticopia)</h1>
+        <div class="lang-switch" role="group" aria-label="Idioma">
+          <button class="lang-button" type="button" data-lang="ca" aria-label="Catala">
+            <img class="flag" src="../assets/flags/es-ct.svg" alt="" aria-hidden="true" />
+          </button>
+          <button class="lang-button" type="button" data-lang="es" aria-label="Espanol">
+            <img class="flag" src="../assets/flags/es.svg" alt="" aria-hidden="true" />
+          </button>
+          <button class="lang-button" type="button" data-lang="en" aria-label="English">
+            <img class="flag" src="../assets/flags/gb.svg" alt="" aria-hidden="true" />
+          </button>
+        </div>
+      </div>
 
-      <button id="downloadButton" class="primary">
+      <button id="downloadButton" class="primary" data-i18n="downloadAll">
         Descargar todas las entregas
       </button>
 
       <label class="toggle">
         <input id="folderMode" type="checkbox" checked />
-        Forzar “descargar en carpetas”
+        <span data-i18n="forceFolderMode">Forzar "descargar en carpetas"</span>
       </label>
 
-      <button id="analyzerButton" class="secondary">
+      <button id="analyzerButton" class="secondary" data-i18n="openAnalyzer">
         Abrir analizador de similitud
       </button>
 
