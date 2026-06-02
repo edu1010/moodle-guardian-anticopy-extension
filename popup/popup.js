@@ -1,4 +1,5 @@
 const ext = globalThis.browser ?? globalThis.chrome;
+const usesPromiseApi = Boolean(globalThis.browser && ext === globalThis.browser);
 
 const DEFAULT_LANG = "es";
 const STORAGE_LANG_KEY = "moodleGuardianLanguage";
@@ -52,12 +53,20 @@ function t(key) {
 }
 
 function storageGet(key) {
+  if (usesPromiseApi) {
+    return ext.storage.local.get({ [key]: DEFAULT_LANG }).then((items) => items[key]);
+  }
+
   return new Promise((resolve) => {
     ext.storage.local.get({ [key]: DEFAULT_LANG }, (items) => resolve(items[key]));
   });
 }
 
 function storageSet(values) {
+  if (usesPromiseApi) {
+    return ext.storage.local.set(values);
+  }
+
   return new Promise((resolve) => ext.storage.local.set(values, resolve));
 }
 
@@ -84,8 +93,28 @@ async function setLanguage(lang) {
 }
 
 async function getActiveTab() {
-  const tabs = await ext.tabs.query({ active: true, currentWindow: true });
+  const query = { active: true, currentWindow: true };
+  const tabs = usesPromiseApi
+    ? await ext.tabs.query(query)
+    : await new Promise((resolve) => ext.tabs.query(query, resolve));
   return tabs[0];
+}
+
+function sendRuntimeMessage(payload) {
+  if (usesPromiseApi) {
+    return ext.runtime.sendMessage(payload);
+  }
+
+  return new Promise((resolve, reject) => {
+    ext.runtime.sendMessage(payload, (response) => {
+      const err = ext.runtime.lastError;
+      if (err) {
+        reject(new Error(err.message));
+        return;
+      }
+      resolve(response);
+    });
+  });
 }
 
 langButtons.forEach((button) => {
@@ -108,7 +137,7 @@ downloadButton.addEventListener("click", async () => {
       return;
     }
 
-    const response = await ext.runtime.sendMessage({
+    const response = await sendRuntimeMessage({
       type: "downloadFromCurrentTab",
       tabId: tab.id,
       forceFolderMode: folderMode.checked
@@ -126,7 +155,7 @@ downloadButton.addEventListener("click", async () => {
 });
 
 analyzerButton.addEventListener("click", async () => {
-  await ext.runtime.sendMessage({ type: "openAnalyzer" });
+  await sendRuntimeMessage({ type: "openAnalyzer" });
   window.close();
 });
 

@@ -9,6 +9,7 @@ const summaryNode = document.getElementById("summary");
 const resultsBody = document.getElementById("resultsBody");
 
 const ext = globalThis.browser ?? globalThis.chrome;
+const usesPromiseApi = Boolean(globalThis.browser && ext === globalThis.browser);
 const DEFAULT_LANG = "es";
 const STORAGE_LANG_KEY = "moodleGuardianLanguage";
 const TRANSLATIONS = {
@@ -263,6 +264,10 @@ function t(key, values = {}) {
 }
 
 function storageGet(key) {
+  if (usesPromiseApi) {
+    return ext.storage.local.get({ [key]: DEFAULT_LANG }).then((items) => items[key]);
+  }
+
   return new Promise((resolve) => {
     if (!ext?.storage?.local) {
       resolve(DEFAULT_LANG);
@@ -273,6 +278,10 @@ function storageGet(key) {
 }
 
 function storageSet(values) {
+  if (usesPromiseApi) {
+    return ext.storage.local.set(values);
+  }
+
   return new Promise((resolve) => {
     if (!ext?.storage?.local) {
       resolve();

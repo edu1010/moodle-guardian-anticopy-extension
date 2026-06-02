@@ -1,4 +1,5 @@
 const ext = globalThis.browser ?? globalThis.chrome;
+const usesPromiseApi = Boolean(globalThis.browser && ext === globalThis.browser);
 
 function buildDownloadPayload(forceFolderMode) {
   return {
@@ -8,13 +9,41 @@ function buildDownloadPayload(forceFolderMode) {
 }
 
 function sendToContentScript(tabId, payload, callback) {
-  ext.tabs.sendMessage(tabId, payload, (response) => {
-    const err = ext.runtime.lastError;
-    callback(err, response);
-  });
+  if (usesPromiseApi) {
+    ext.tabs
+      .sendMessage(tabId, payload)
+      .then((response) => callback(null, response))
+      .catch((error) => callback(error));
+    return;
+  }
+
+  try {
+    ext.tabs.sendMessage(tabId, payload, (response) => {
+      const err = ext.runtime.lastError;
+      callback(err, response);
+    });
+  } catch (error) {
+    callback(error);
+  }
 }
 
 function injectContentScript(tabId, callback) {
+  if (ext.tabs && typeof ext.tabs.executeScript === "function") {
+    if (usesPromiseApi) {
+      ext.tabs
+        .executeScript(tabId, { file: "/contentScript.js", runAt: "document_idle" })
+        .then(() => callback(null))
+        .catch((error) => callback(error));
+      return;
+    }
+
+    ext.tabs.executeScript(tabId, { file: "/contentScript.js", runAt: "document_idle" }, () => {
+      const err = ext.runtime.lastError;
+      callback(err || null);
+    });
+    return;
+  }
+
   if (!ext.scripting || typeof ext.scripting.executeScript !== "function") {
     callback(new Error("No se puede inyectar script en este navegador."));
     return;

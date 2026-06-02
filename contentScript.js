@@ -9,6 +9,7 @@
   const DEFAULT_LANG = "es";
   const STORAGE_LANG_KEY = "moodleGuardianLanguage";
   const ext = globalThis.browser ?? globalThis.chrome;
+  const usesPromiseApi = Boolean(globalThis.browser && ext === globalThis.browser);
 
   const TRANSLATIONS = {
     ca: {
@@ -58,6 +59,10 @@
   }
 
   function storageGet(key) {
+    if (usesPromiseApi) {
+      return ext.storage.local.get({ [key]: DEFAULT_LANG }).then((items) => items[key]);
+    }
+
     return new Promise((resolve) => {
       if (!ext?.storage?.local) {
         resolve(DEFAULT_LANG);
@@ -217,6 +222,10 @@
   }
 
   function sendRuntimeMessage(payload) {
+    if (usesPromiseApi) {
+      return ext.runtime.sendMessage(payload);
+    }
+
     return new Promise((resolve, reject) => {
       ext.runtime.sendMessage(payload, (response) => {
         const err = ext.runtime.lastError;
