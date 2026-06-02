@@ -23,16 +23,17 @@ const TRANSLATIONS = {
     submissionsFolderLabel: "Carpeta de trameses",
     submissionsFolderHint:
       "Fes servir aquest camp nomes si ja has descomprimit el ZIP principal i vols seleccionar la carpeta que conte les carpetes dels alumnes.",
-    commonBaseLabel: "Part comuna en totes les trameses (opcional, diversos fitxers o ZIP/RAR/7z)",
+    commonBaseLabel:
+      "Part comuna en totes les trameses (opcional, diversos fitxers, documents, fulls de calcul o ZIP/RAR/7z)",
     commonBaseHint:
-      "Selecciona aqui l'enunciat, plantilla o ZIP base comu. Es treura de la comparativa per mesurar nomes el treball propi de cada alumne.",
+      "Selecciona aqui l'enunciat, plantilla o ZIP base comu. Pot ser text, PDF amb text, DOCX/ODT o full de calcul XLSX/ODS/CSV. Es treura de la comparativa per mesurar nomes el treball propi de cada alumne.",
     thresholdLabel: "Llindar de sospita (0.00-1.00)",
     thresholdHint: "Nomes es mostren com a sospitoses les parelles amb una similitud igual o superior a aquest valor.",
     commonLinesLabel: "Linia comuna si apareix en >= X% de trameses",
     commonLinesHint:
       "Les linies que apareixen en moltes trameses s'eliminen automaticament per reduir falsos positius per plantilla compartida.",
     archiveNote:
-      "Nota: s'intenten descomprimir ZIP/RAR/7z; si algun comprimit no es pot llegir, es llistara com a no analitzat.",
+      "Nota: s'intenten llegir ZIP/RAR/7z, PDF amb text, DOCX/ODT i fulls XLSX/ODS/CSV; si algun fitxer no pot llegir-se, es llistara com a no analitzat o ignorat.",
     analyzeButton: "Analitza similitud",
     resultsHeading: "Resultats",
     studentAHeader: "Alumne A",
@@ -51,7 +52,7 @@ const TRANSLATIONS = {
     unexpectedAnalysis: "Error inesperat durant l'analisi.",
     selectSubmissions: "Selecciona carpeta de trameses o el ZIP principal de Moodle.",
     commonBaseEmpty:
-      "La part comuna no conte text analitzable. Usa txt/md/html o comprimits ZIP/RAR/7z amb aquests fitxers.",
+      "La part comuna no conte text analitzable. Usa txt/md/html, PDF amb text, DOCX/ODT, XLSX/ODS/CSV o comprimits ZIP/RAR/7z amb aquests fitxers.",
     autoLoading: "Carregant automaticament el ZIP principal de Moodle...",
     moodleStatus: "Moodle ha respost {status}",
     emptyZip: "El ZIP descarregat des de Moodle esta buit.",
@@ -81,16 +82,17 @@ const TRANSLATIONS = {
     submissionsFolderLabel: "Carpeta de entregas",
     submissionsFolderHint:
       "Usa este campo solo si ya has descomprimido el ZIP principal y quieres seleccionar la carpeta que contiene las carpetas de alumnos.",
-    commonBaseLabel: "Parte comun en todas las entregas (opcional, varios archivos o ZIP/RAR/7z)",
+    commonBaseLabel:
+      "Parte comun en todas las entregas (opcional, varios archivos, documentos, hojas de calculo o ZIP/RAR/7z)",
     commonBaseHint:
-      "Selecciona aqui el enunciado, plantilla o ZIP base comun. Se quitara de la comparativa para medir solo el trabajo propio de cada alumno.",
+      "Selecciona aqui el enunciado, plantilla o ZIP base comun. Puede ser texto, PDF con texto, DOCX/ODT u hoja XLSX/ODS/CSV. Se quitara de la comparativa para medir solo el trabajo propio de cada alumno.",
     thresholdLabel: "Umbral de sospecha (0.00-1.00)",
     thresholdHint: "Solo se muestran como sospechosos los pares con una similitud igual o superior a este valor.",
     commonLinesLabel: "Linea comun si aparece en >= X% de entregas",
     commonLinesHint:
       "Las lineas que aparecen en muchas entregas se eliminan automaticamente para reducir falsos positivos por plantilla compartida.",
     archiveNote:
-      "Nota: se intentan descomprimir ZIP/RAR/7z; si algun comprimido no puede leerse, se listara como no analizado.",
+      "Nota: se intentan leer ZIP/RAR/7z, PDF con texto, DOCX/ODT y hojas XLSX/ODS/CSV; si algun archivo no puede leerse, se listara como no analizado o ignorado.",
     analyzeButton: "Analizar similitud",
     resultsHeading: "Resultados",
     studentAHeader: "Alumno A",
@@ -109,7 +111,7 @@ const TRANSLATIONS = {
     unexpectedAnalysis: "Error inesperado durante el analisis.",
     selectSubmissions: "Selecciona carpeta de entregas o el ZIP principal de Moodle.",
     commonBaseEmpty:
-      "La parte comun no contiene texto analizable. Usa txt/md/html o comprimidos ZIP/RAR/7z con esos archivos.",
+      "La parte comun no contiene texto analizable. Usa txt/md/html, PDF con texto, DOCX/ODT, XLSX/ODS/CSV o comprimidos ZIP/RAR/7z con esos archivos.",
     autoLoading: "Cargando automaticamente el ZIP principal de Moodle...",
     moodleStatus: "Moodle respondio {status}",
     emptyZip: "El ZIP descargado desde Moodle esta vacio.",
@@ -139,16 +141,17 @@ const TRANSLATIONS = {
     submissionsFolderLabel: "Submissions folder",
     submissionsFolderHint:
       "Use this field only if you already extracted the main ZIP and want to select the folder that contains the student folders.",
-    commonBaseLabel: "Common part in all submissions (optional, multiple files or ZIP/RAR/7z)",
+    commonBaseLabel:
+      "Common part in all submissions (optional, multiple files, documents, spreadsheets or ZIP/RAR/7z)",
     commonBaseHint:
-      "Select the statement, starter template, or common base ZIP here. It will be removed from the comparison so only each student's own work is measured.",
+      "Select the statement, starter template, or common base ZIP here. It can be text, a text-based PDF, DOCX/ODT, or XLSX/ODS/CSV spreadsheet. It will be removed from the comparison so only each student's own work is measured.",
     thresholdLabel: "Suspicion threshold (0.00-1.00)",
     thresholdHint: "Only pairs with similarity equal to or above this value are shown as suspicious.",
     commonLinesLabel: "Common line if it appears in >= X% of submissions",
     commonLinesHint:
       "Lines appearing in many submissions are removed automatically to reduce false positives from a shared template.",
     archiveNote:
-      "Note: ZIP/RAR/7z archives are decompressed when possible; unreadable archives will be listed as not analyzed.",
+      "Note: ZIP/RAR/7z archives, text-based PDF, DOCX/ODT and XLSX/ODS/CSV spreadsheets are read when possible; unreadable files will be listed as not analyzed or ignored.",
     analyzeButton: "Analyze similarity",
     resultsHeading: "Results",
     studentAHeader: "Student A",
@@ -167,7 +170,7 @@ const TRANSLATIONS = {
     unexpectedAnalysis: "Unexpected error during analysis.",
     selectSubmissions: "Select a submissions folder or the main Moodle ZIP.",
     commonBaseEmpty:
-      "The common part does not contain analyzable text. Use txt/md/html or ZIP/RAR/7z archives containing those files.",
+      "The common part does not contain analyzable text. Use txt/md/html, text-based PDF, DOCX/ODT, XLSX/ODS/CSV or ZIP/RAR/7z archives containing those files.",
     autoLoading: "Automatically loading the main Moodle ZIP...",
     moodleStatus: "Moodle responded with {status}",
     emptyZip: "The ZIP downloaded from Moodle is empty.",
@@ -225,14 +228,18 @@ const SUPPORTED_TEXT_EXTENSIONS = new Set([
   "sh",
   "bash",
   "bat",
-  "ps1"
+  "ps1",
+  "tsv"
 ]);
 
 const ZIP_EXTENSION = "zip";
 const RAR_EXTENSION = "rar";
 const SEVEN_Z_EXTENSION = "7z";
 const SUPPORTED_ARCHIVE_EXTENSIONS = new Set([ZIP_EXTENSION, RAR_EXTENSION, SEVEN_Z_EXTENSION]);
+const SUPPORTED_DOCUMENT_EXTENSIONS = new Set(["docx", "odt", "pdf"]);
+const SUPPORTED_SPREADSHEET_EXTENSIONS = new Set(["xlsx", "xlsm", "ods"]);
 const UNSUPPORTED_ARCHIVE_EXTENSIONS = new Set();
+const UNSUPPORTED_BINARY_DOCUMENT_EXTENSIONS = new Set(["xls", "xlsb"]);
 const MAX_ARCHIVE_DEPTH = 5;
 const MAX_UNCOMPRESSED_ENTRY_BYTES = 25 * 1024 * 1024;
 const MAX_TOTAL_UNCOMPRESSED_BYTES = Number.POSITIVE_INFINITY;
@@ -379,6 +386,169 @@ function htmlToText(html) {
   const parser = new DOMParser();
   const doc = parser.parseFromString(html, "text/html");
   return doc.body?.textContent || "";
+}
+
+function xmlToDoc(xmlText) {
+  return new DOMParser().parseFromString(xmlText, "application/xml");
+}
+
+function getXmlTextsByLocalName(doc, localNames) {
+  const wanted = new Set(localNames);
+  return Array.from(doc.getElementsByTagName("*"))
+    .filter((node) => wanted.has(node.localName))
+    .map((node) => node.textContent || "")
+    .filter(Boolean);
+}
+
+function getFirstXmlTextByLocalName(parent, localName) {
+  const nodes = Array.from(parent.getElementsByTagName("*"));
+  const found = nodes.find((node) => node.localName === localName);
+  return found?.textContent || "";
+}
+
+function bytesToBinaryString(bytes) {
+  const chunkSize = 0x8000;
+  let out = "";
+  for (let i = 0; i < bytes.length; i += chunkSize) {
+    out += String.fromCharCode(...bytes.subarray(i, i + chunkSize));
+  }
+  return out;
+}
+
+function binaryStringToBytes(value) {
+  const bytes = new Uint8Array(value.length);
+  for (let i = 0; i < value.length; i += 1) {
+    bytes[i] = value.charCodeAt(i) & 0xff;
+  }
+  return bytes;
+}
+
+async function inflateZlib(bytes) {
+  if (typeof DecompressionStream !== "function") {
+    throw new Error("Tu navegador no soporta descompresion Flate.");
+  }
+  const stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream("deflate"));
+  const output = await new Response(stream).arrayBuffer();
+  return new Uint8Array(output);
+}
+
+function decodeUtf16Be(bytes) {
+  let out = "";
+  for (let i = 0; i + 1 < bytes.length; i += 2) {
+    out += String.fromCharCode((bytes[i] << 8) | bytes[i + 1]);
+  }
+  return out;
+}
+
+function decodePdfStringBytes(bytes) {
+  if (bytes.length >= 2 && bytes[0] === 0xfe && bytes[1] === 0xff) {
+    return decodeUtf16Be(bytes.subarray(2));
+  }
+  if (bytes.length >= 2 && bytes[0] === 0xff && bytes[1] === 0xfe) {
+    return new TextDecoder("utf-16le", { fatal: false }).decode(bytes.subarray(2));
+  }
+  return new TextDecoder("windows-1252", { fatal: false }).decode(bytes);
+}
+
+function decodePdfLiteralString(value) {
+  const raw = value.slice(1, -1);
+  const bytes = [];
+  for (let i = 0; i < raw.length; i += 1) {
+    const ch = raw[i];
+    if (ch !== "\\") {
+      bytes.push(raw.charCodeAt(i) & 0xff);
+      continue;
+    }
+
+    const next = raw[++i];
+    if (next === undefined) {
+      break;
+    }
+    const mapped = { n: 10, r: 13, t: 9, b: 8, f: 12, "(": 40, ")": 41, "\\": 92 };
+    if (mapped[next] !== undefined) {
+      bytes.push(mapped[next]);
+      continue;
+    }
+    if (/[0-7]/.test(next)) {
+      let octal = next;
+      for (let j = 0; j < 2 && /[0-7]/.test(raw[i + 1] || ""); j += 1) {
+        octal += raw[++i];
+      }
+      bytes.push(parseInt(octal, 8) & 0xff);
+      continue;
+    }
+    if (next === "\r" && raw[i + 1] === "\n") {
+      i += 1;
+      continue;
+    }
+    if (next === "\n" || next === "\r") {
+      continue;
+    }
+    bytes.push(next.charCodeAt(0) & 0xff);
+  }
+  return decodePdfStringBytes(new Uint8Array(bytes));
+}
+
+function decodePdfHexString(hex) {
+  const clean = hex.replace(/\s+/g, "");
+  const padded = clean.length % 2 === 0 ? clean : `${clean}0`;
+  const bytes = new Uint8Array(padded.length / 2);
+  for (let i = 0; i < padded.length; i += 2) {
+    bytes[i / 2] = parseInt(padded.slice(i, i + 2), 16);
+  }
+  return decodePdfStringBytes(bytes);
+}
+
+function extractPdfStringsFromContent(content) {
+  const texts = [];
+  const literalMatches = content.match(/\((?:\\.|[^\\)])*\)/g) || [];
+  for (const match of literalMatches) {
+    const text = decodePdfLiteralString(match).trim();
+    if (/[a-zA-Z0-9À-ÿ]/.test(text)) {
+      texts.push(text);
+    }
+  }
+
+  const hexPattern = /<([0-9A-Fa-f\s]{4,})>/g;
+  let hexMatch;
+  while ((hexMatch = hexPattern.exec(content))) {
+    const text = decodePdfHexString(hexMatch[1]).trim();
+    if (/[a-zA-Z0-9À-ÿ]/.test(text)) {
+      texts.push(text);
+    }
+  }
+
+  return texts.join("\n");
+}
+
+async function extractPdfText(bytes, stats, path) {
+  const binary = bytesToBinaryString(bytes);
+  const contents = [binary];
+  const streamPattern = /<<(?:.|\r|\n)*?>>\s*stream\r?\n?/g;
+  let match;
+  while ((match = streamPattern.exec(binary))) {
+    const streamStart = match.index + match[0].length;
+    const endIndex = binary.indexOf("endstream", streamStart);
+    if (endIndex === -1) {
+      break;
+    }
+    let streamData = binary.slice(streamStart, endIndex);
+    streamData = streamData.replace(/(?:\r?\n|\r)$/, "");
+    const dict = match[0];
+    if (/FlateDecode/.test(dict)) {
+      try {
+        const inflated = await inflateZlib(binaryStringToBytes(streamData));
+        contents.push(bytesToBinaryString(inflated));
+      } catch {
+        pushSample(stats.zipWarnings, `No se pudo leer texto comprimido PDF: ${path}`);
+      }
+    } else {
+      contents.push(streamData);
+    }
+    streamPattern.lastIndex = endIndex + "endstream".length;
+  }
+
+  return contents.map(extractPdfStringsFromContent).filter(Boolean).join("\n");
 }
 
 function normalizeLine(line) {
@@ -698,10 +868,154 @@ async function readArchiveEntries(path, bytes, stats) {
   }
 }
 
+function entryMapByPath(entries) {
+  const map = new Map();
+  for (const entry of entries) {
+    map.set(normalizePath(entry.path).toLowerCase(), entry);
+  }
+  return map;
+}
+
+async function readZipXmlEntries(path, bytes, stats) {
+  const entries = await readZipEntries(toArrayBuffer(bytes), path, stats);
+  return entryMapByPath(entries);
+}
+
+function decodeXmlEntry(entry) {
+  return entry ? decodeTextBytes(entry.bytes) : "";
+}
+
+async function extractDocxText(path, bytes, stats) {
+  const entries = await readZipXmlEntries(path, bytes, stats);
+  const targets = [
+    "word/document.xml",
+    "word/footnotes.xml",
+    "word/endnotes.xml",
+    "word/comments.xml"
+  ];
+  for (const entryPath of entries.keys()) {
+    if (/^word\/header\d+\.xml$/.test(entryPath) || /^word\/footer\d+\.xml$/.test(entryPath)) {
+      targets.push(entryPath);
+    }
+  }
+
+  const chunks = [];
+  for (const target of targets) {
+    const xml = decodeXmlEntry(entries.get(target));
+    if (!xml) {
+      continue;
+    }
+    const doc = xmlToDoc(xml);
+    chunks.push(...getXmlTextsByLocalName(doc, ["t"]));
+  }
+  return chunks.join("\n");
+}
+
+async function extractOpendocumentText(path, bytes, stats) {
+  const entries = await readZipXmlEntries(path, bytes, stats);
+  const xml = decodeXmlEntry(entries.get("content.xml"));
+  if (!xml) {
+    return "";
+  }
+  const doc = xmlToDoc(xml);
+  return getXmlTextsByLocalName(doc, ["h", "p"]).join("\n");
+}
+
+function extractSharedStrings(xml) {
+  if (!xml) {
+    return [];
+  }
+  const doc = xmlToDoc(xml);
+  const items = Array.from(doc.getElementsByTagName("*")).filter((node) => node.localName === "si");
+  return items.map((item) => getXmlTextsByLocalName(item, ["t"]).join(""));
+}
+
+function extractWorksheetRows(xml, sharedStrings) {
+  const doc = xmlToDoc(xml);
+  const rows = Array.from(doc.getElementsByTagName("*")).filter((node) => node.localName === "row");
+  const output = [];
+
+  for (const row of rows) {
+    const values = Array.from(row.getElementsByTagName("*"))
+      .filter((node) => node.localName === "c")
+      .map((cell) => {
+        const type = cell.getAttribute("t");
+        if (type === "s") {
+          const idx = Number(getFirstXmlTextByLocalName(cell, "v"));
+          return sharedStrings[idx] || "";
+        }
+        if (type === "inlineStr") {
+          return getXmlTextsByLocalName(cell, ["t"]).join("");
+        }
+        return getFirstXmlTextByLocalName(cell, "v");
+      })
+      .filter((value) => String(value || "").trim().length > 0);
+    if (values.length > 0) {
+      output.push(values.join(" "));
+    }
+  }
+
+  return output;
+}
+
+async function extractXlsxText(path, bytes, stats) {
+  const entries = await readZipXmlEntries(path, bytes, stats);
+  const sharedStrings = extractSharedStrings(decodeXmlEntry(entries.get("xl/sharedstrings.xml")));
+  const rows = [];
+  for (const [entryPath, entry] of entries.entries()) {
+    if (/^xl\/worksheets\/sheet\d+\.xml$/.test(entryPath)) {
+      rows.push(...extractWorksheetRows(decodeXmlEntry(entry), sharedStrings));
+    }
+  }
+  return rows.join("\n");
+}
+
+async function extractOdsText(path, bytes, stats) {
+  const entries = await readZipXmlEntries(path, bytes, stats);
+  const xml = decodeXmlEntry(entries.get("content.xml"));
+  if (!xml) {
+    return "";
+  }
+  const doc = xmlToDoc(xml);
+  return getXmlTextsByLocalName(doc, ["p"]).join("\n");
+}
+
 function extractTextLines(path, text) {
   const ext = getExtension(path);
   const normalizedText = ext === "html" || ext === "htm" ? htmlToText(text) : text;
   return splitToNormalizedLines(normalizedText);
+}
+
+async function extractLinesFromBytes(path, bytes, stats) {
+  const ext = getExtension(path);
+  if (canReadTextByExtension(path)) {
+    return extractTextLines(path, decodeTextBytes(bytes));
+  }
+  if (ext === "docx") {
+    return splitToNormalizedLines(await extractDocxText(path, bytes, stats));
+  }
+  if (ext === "odt") {
+    return splitToNormalizedLines(await extractOpendocumentText(path, bytes, stats));
+  }
+  if (ext === "xlsx" || ext === "xlsm") {
+    return splitToNormalizedLines(await extractXlsxText(path, bytes, stats));
+  }
+  if (ext === "ods") {
+    return splitToNormalizedLines(await extractOdsText(path, bytes, stats));
+  }
+  if (ext === "pdf") {
+    return splitToNormalizedLines(await extractPdfText(bytes, stats, path));
+  }
+  return null;
+}
+
+function canExtractLinesByExtension(path) {
+  const ext = getExtension(path);
+  return (
+    canReadTextByExtension(path) ||
+    SUPPORTED_DOCUMENT_EXTENSIONS.has(ext) ||
+    SUPPORTED_SPREADSHEET_EXTENSIONS.has(ext)
+  );
 }
 
 async function ingestBytes(path, bytes, submissionMap, stats, depth) {
@@ -728,13 +1042,18 @@ async function ingestBytes(path, bytes, submissionMap, stats, depth) {
     return;
   }
 
-  if (!canReadTextByExtension(path)) {
+  if (UNSUPPORTED_BINARY_DOCUMENT_EXTENSIONS.has(ext)) {
+    stats.ignoredFiles += 1;
+    pushSample(stats.zipWarnings, `Formato binario no soportado: ${path}`);
+    return;
+  }
+
+  const lines = await extractLinesFromBytes(path, bytes, stats);
+  if (lines === null) {
     stats.ignoredFiles += 1;
     return;
   }
 
-  const text = decodeTextBytes(bytes);
-  const lines = extractTextLines(path, text);
   addLinesToSubmission(submissionMap, path, lines);
   stats.textFiles += 1;
 }
@@ -757,7 +1076,21 @@ async function ingestFileObject(file, submissionMap, stats) {
     return;
   }
 
-  if (canReadTextByExtension(filePath) || (file.type || "").startsWith("text/")) {
+  if (UNSUPPORTED_BINARY_DOCUMENT_EXTENSIONS.has(ext)) {
+    stats.ignoredFiles += 1;
+    pushSample(stats.zipWarnings, `Formato binario no soportado: ${filePath}`);
+    return;
+  }
+
+  if (canExtractLinesByExtension(filePath)) {
+    const bytes = new Uint8Array(await file.arrayBuffer());
+    const lines = await extractLinesFromBytes(filePath, bytes, stats);
+    addLinesToSubmission(submissionMap, filePath, lines || []);
+    stats.textFiles += 1;
+    return;
+  }
+
+  if ((file.type || "").startsWith("text/")) {
     const text = await file.text();
     const lines = extractTextLines(filePath, text);
     addLinesToSubmission(submissionMap, filePath, lines);
@@ -881,12 +1214,17 @@ async function ingestCommonBaseBytes(path, bytes, commonBaseSet, stats, depth) {
     return;
   }
 
-  if (!canReadTextByExtension(path)) {
+  if (UNSUPPORTED_BINARY_DOCUMENT_EXTENSIONS.has(ext)) {
+    pushSample(stats.zipWarnings, `Formato binario no soportado en parte comun: ${path}`);
     return;
   }
 
-  const text = decodeTextBytes(bytes);
-  addCommonBaseLines(commonBaseSet, extractTextLines(path, text));
+  const lines = await extractLinesFromBytes(path, bytes, stats);
+  if (lines === null) {
+    return;
+  }
+
+  addCommonBaseLines(commonBaseSet, lines);
 }
 
 async function readStatementLines(filesLike) {
@@ -914,15 +1252,24 @@ async function readStatementLines(filesLike) {
       continue;
     }
 
-    if (!canReadTextByExtension(filePath) && !(file.type || "").startsWith("text/")) {
+    if (UNSUPPORTED_BINARY_DOCUMENT_EXTENSIONS.has(ext)) {
+      pushSample(stats.zipWarnings, `Formato binario no soportado en parte comun: ${filePath}`);
       continue;
     }
 
-    let text = await file.text();
-    if (ext === "html" || ext === "htm") {
-      text = htmlToText(text);
+    if (!canExtractLinesByExtension(filePath) && !(file.type || "").startsWith("text/")) {
+      continue;
     }
-    addCommonBaseLines(commonBaseSet, splitToNormalizedLines(text));
+
+    if (canExtractLinesByExtension(filePath)) {
+      const bytes = new Uint8Array(await file.arrayBuffer());
+      const lines = await extractLinesFromBytes(filePath, bytes, stats);
+      addCommonBaseLines(commonBaseSet, lines || []);
+      continue;
+    }
+
+    const text = await file.text();
+    addCommonBaseLines(commonBaseSet, extractTextLines(filePath, text));
   }
 
   if (commonBaseSet.size === 0) {

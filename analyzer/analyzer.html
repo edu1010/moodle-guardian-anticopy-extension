@@ -48,11 +48,11 @@
         </div>
 
         <div class="field">
-          <label for="statementInput" data-i18n="commonBaseLabel">Parte comun en todas las entregas (opcional, varios archivos o ZIP/RAR/7z)</label>
+          <label for="statementInput" data-i18n="commonBaseLabel">Parte comun en todas las entregas (opcional, varios archivos, documentos, hojas de calculo o ZIP/RAR/7z)</label>
           <p class="hint" data-i18n="commonBaseHint">
-            Selecciona aqui el enunciado, plantilla o ZIP base comun. Se quitara de la comparativa para medir solo el trabajo propio de cada alumno.
+            Selecciona aqui el enunciado, plantilla o ZIP base comun. Puede ser texto, PDF con texto, DOCX/ODT u hoja XLSX/ODS/CSV. Se quitara de la comparativa para medir solo el trabajo propio de cada alumno.
           </p>
-          <input id="statementInput" type="file" accept=".txt,.md,.html,.htm,.zip,.rar,.7z" multiple />
+          <input id="statementInput" type="file" accept=".txt,.md,.html,.htm,.csv,.tsv,.pdf,.docx,.odt,.xlsx,.xlsm,.ods,.zip,.rar,.7z" multiple />
         </div>
 
         <div class="grid">
@@ -74,7 +74,7 @@
         </div>
 
         <p class="status" data-i18n="archiveNote">
-          Nota: se intentan descomprimir ZIP/RAR/7z; si algun comprimido no puede leerse, se listara como no analizado.
+          Nota: se intentan leer ZIP/RAR/7z, PDF con texto, DOCX/ODT y hojas XLSX/ODS/CSV; si algun archivo no puede leerse, se listara como no analizado o ignorado.
         </p>
         <button id="analyzeButton" data-i18n="analyzeButton">Analizar similitud</button>
         <p id="status" class="status" aria-live="polite"></p>

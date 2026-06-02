@@ -10,6 +10,7 @@ Extension para Firefox/Chrome que hace dos cosas:
 - Puedes cargar directamente el ZIP principal descargado desde Moodle.
 - Si dentro hay ZIPs de alumnos, se descomprimen automaticamente (sin limite por numero de entregas, con salvaguardas por archivo/profundidad).
 - Se intentan procesar `.zip`, `.rar` y `.7z` (incluidos comprimidos anidados); si alguno no puede leerse se marca como "no analizado" y se lista en el resumen.
+- Ademas de texto y codigo, se extrae texto de `.pdf`, `.docx`, `.odt`, `.xlsx`, `.xlsm`, `.ods`, `.csv` y `.tsv` cuando el archivo contiene texto real.
 
 ## Estructura
 
@@ -37,7 +38,7 @@ Extension para Firefox/Chrome que hace dos cosas:
 4. En el analizador:
    - opcion A: selecciona el ZIP principal de Moodle,
    - opcion B: selecciona la carpeta descomprimida.
-5. (Opcional) anade archivos de parte comun en todas las entregas (varios `.txt/.md/.html` o comprimidos `.zip/.rar/.7z` con ellos).
+5. (Opcional) anade archivos de parte comun en todas las entregas (texto/codigo, PDF con texto, DOCX/ODT, XLSX/ODS/CSV/TSV o comprimidos `.zip/.rar/.7z` con ellos).
 6. Ajusta umbral y porcentaje de lineas comunes.
 7. Ejecuta el analisis.
 
@@ -49,6 +50,6 @@ Extension para Firefox/Chrome que hace dos cosas:
 
 ## Limitaciones actuales
 
-- Analiza principalmente texto y codigo.
-- PDF/DOCX no se procesan en esta version.
+- Los PDF escaneados como imagen no se leen porque no hay OCR; solo se extrae texto embebido en el PDF.
+- Los `.xls` antiguos binarios y `.xlsb` no se procesan sin una libreria adicional; usa `.xlsx` cuando sea posible.
 - ZIP cifrados o ZIP64 pueden no poder leerse.
