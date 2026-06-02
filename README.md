@@ -20,7 +20,11 @@ Extension para Firefox/Chrome que hace dos cosas:
 - `popup/`: interfaz rapida.
 - `analyzer/`: analisis de similitud local.
 
-## Instalacion (Firefox)
+## Instalacion
+
+### Castellano
+
+#### Firefox
 
 > La rama `master` esta adaptada para Firefox como WebExtension Manifest V2.
 
@@ -28,6 +32,61 @@ Extension para Firefox/Chrome que hace dos cosas:
 2. Pulsa **Cargar complemento temporal**.
 3. Selecciona el archivo `manifest.json` de la carpeta raiz del proyecto.
 4. Si haces cambios en el codigo, recarga el complemento temporal desde esa misma pantalla.
+
+#### Chrome
+
+> Para instalar en Chrome, cambia antes a la rama `chrome-mv3`, que esta adaptada a Manifest V3.
+
+1. Cambia de rama: `git switch chrome-mv3`.
+2. Abre `chrome://extensions/`.
+3. Activa **Developer mode**.
+4. Pulsa **Load unpacked**.
+5. Selecciona la carpeta raiz del proyecto, donde esta `manifest.json`.
+6. Si haces cambios en el codigo, pulsa **Reload** en la tarjeta de la extension.
+
+### Catala
+
+#### Firefox
+
+> La branca `master` esta adaptada per a Firefox com a WebExtension Manifest V2.
+
+1. Obre `about:debugging#/runtime/this-firefox`.
+2. Prem **Carrega un complement temporal**.
+3. Selecciona el fitxer `manifest.json` de la carpeta arrel del projecte.
+4. Si fas canvis al codi, recarrega el complement temporal des de la mateixa pantalla.
+
+#### Chrome
+
+> Per instal-lar a Chrome, canvia abans a la branca `chrome-mv3`, que esta adaptada a Manifest V3.
+
+1. Canvia de branca: `git switch chrome-mv3`.
+2. Obre `chrome://extensions/`.
+3. Activa **Developer mode**.
+4. Prem **Load unpacked**.
+5. Selecciona la carpeta arrel del projecte, on hi ha `manifest.json`.
+6. Si fas canvis al codi, prem **Reload** a la targeta de l'extensio.
+
+### English
+
+#### Firefox
+
+> The `master` branch is adapted for Firefox as a Manifest V2 WebExtension.
+
+1. Open `about:debugging#/runtime/this-firefox`.
+2. Click **Load Temporary Add-on**.
+3. Select the `manifest.json` file from the project root folder.
+4. If you change the code, reload the temporary add-on from the same page.
+
+#### Chrome
+
+> To install in Chrome, switch to the `chrome-mv3` branch first. That branch is adapted for Manifest V3.
+
+1. Switch branch: `git switch chrome-mv3`.
+2. Open `chrome://extensions/`.
+3. Enable **Developer mode**.
+4. Click **Load unpacked**.
+5. Select the project root folder, where `manifest.json` is located.
+6. If you change the code, click **Reload** on the extension card.
 
 ## Uso
 
