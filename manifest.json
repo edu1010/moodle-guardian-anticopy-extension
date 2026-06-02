@@ -1,8 +1,14 @@
 {
   "manifest_version": 3,
-  "name": "Moodle Guardian (Descargas + Anticopia)",
+  "name": "Moodle Guardian Anticheat",
   "version": "0.1.0",
   "description": "Automatiza la descarga de entregas en Moodle y analiza similitud entre trabajos.",
+  "icons": {
+    "16": "assets/icon16.png",
+    "32": "assets/icon32.png",
+    "48": "assets/icon48.png",
+    "128": "assets/icon128.png"
+  },
   "permissions": [
     "activeTab",
     "tabs",
@@ -17,7 +23,13 @@
     "service_worker": "background.js"
   },
   "action": {
-    "default_title": "Moodle Guardian (Descargas + Anticopia)",
+    "default_title": "Moodle Guardian Anticheat",
+    "default_icon": {
+      "16": "assets/icon16.png",
+      "32": "assets/icon32.png",
+      "48": "assets/icon48.png",
+      "128": "assets/icon128.png"
+    },
     "default_popup": "popup/popup.html"
   },
   "content_security_policy": {
