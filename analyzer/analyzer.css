@@ -89,6 +89,72 @@ button {
   cursor: pointer;
 }
 
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.72;
+}
+
+.progressPanel {
+  margin-top: 12px;
+  display: grid;
+  gap: 8px;
+}
+
+.progressPanel[hidden] {
+  display: none;
+}
+
+.progressHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+#progressPercent {
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+}
+
+.progressTrack {
+  width: 100%;
+  height: 10px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #dbe7e5;
+  box-shadow: inset 0 0 0 1px rgba(0, 105, 92, 0.12);
+}
+
+.progressBar {
+  width: 0%;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #00695c, #00a889);
+  transition: width 220ms ease;
+}
+
+.progressPanel.is-running .progressBar {
+  background-size: 180% 100%;
+  animation: progressPulse 1.2s linear infinite;
+}
+
+@keyframes progressPulse {
+  0% {
+    filter: saturate(0.9) brightness(0.98);
+  }
+
+  50% {
+    filter: saturate(1.2) brightness(1.08);
+  }
+
+  100% {
+    filter: saturate(0.9) brightness(0.98);
+  }
+}
+
 .status {
   min-height: 20px;
   margin: 10px 0 0;

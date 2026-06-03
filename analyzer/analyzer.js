@@ -4,6 +4,11 @@ const statementInput = document.getElementById("statementInput");
 const thresholdInput = document.getElementById("thresholdInput");
 const commonLinePctInput = document.getElementById("commonLinePctInput");
 const analyzeButton = document.getElementById("analyzeButton");
+const analysisProgress = document.getElementById("analysisProgress");
+const progressLabel = document.getElementById("progressLabel");
+const progressPercent = document.getElementById("progressPercent");
+const progressTrack = document.getElementById("progressTrack");
+const progressBar = document.getElementById("progressBar");
 const statusNode = document.getElementById("status");
 const summaryNode = document.getElementById("summary");
 const resultsBody = document.getElementById("resultsBody");
@@ -35,6 +40,16 @@ const TRANSLATIONS = {
     archiveNote:
       "Nota: s'intenten llegir ZIP/RAR/7z, PDF amb text, DOCX/ODT i fulls XLSX/ODS/CSV; si algun fitxer no pot llegir-se, es llistara com a no analitzat o ignorat.",
     analyzeButton: "Analitza similitud",
+    analyzeButtonBusy: "Analitzant...",
+    progressIdle: "Esperant analisi...",
+    progressPreparing: "Preparant analisi...",
+    progressReading: "Archivas esta llegint trameses ({current}/{total})...",
+    progressFiltering: "Netejant text comu...",
+    progressVectorizing: "Preparant vectors de comparacio...",
+    progressComparing: "Comparant parelles ({current}/{total})...",
+    progressRendering: "Generant resultats...",
+    progressCompleted: "Analisi completada.",
+    progressFailed: "Analisi interrompuda.",
     resultsHeading: "Resultats",
     studentAHeader: "Alumne A",
     studentBHeader: "Alumne B",
@@ -42,7 +57,7 @@ const TRANSLATIONS = {
     sharedShinglesHeader: "Shingles compartits (mostra)",
     thresholdInvalid: "El llindar ha d'estar entre 0 i 1.",
     commonPctInvalid: "El percentatge de linia comuna ha d'estar entre 0 i 100.",
-    readingSubmissions: "Llegint trameses i descomprimint ZIP...",
+    readingSubmissions: "Archivas esta llegint trameses i descomprimint ZIP...",
     noEnoughText: "No hi ha prou text analitzable. Calen com a minim 2 trameses amb contingut.",
     removingCommon: "Eliminant contingut comu i part comuna base...",
     lowSignal:
@@ -94,6 +109,16 @@ const TRANSLATIONS = {
     archiveNote:
       "Nota: se intentan leer ZIP/RAR/7z, PDF con texto, DOCX/ODT y hojas XLSX/ODS/CSV; si algun archivo no puede leerse, se listara como no analizado o ignorado.",
     analyzeButton: "Analizar similitud",
+    analyzeButtonBusy: "Analizando...",
+    progressIdle: "Esperando analisis...",
+    progressPreparing: "Preparando analisis...",
+    progressReading: "Archivas esta leyendo entregas ({current}/{total})...",
+    progressFiltering: "Limpiando texto comun...",
+    progressVectorizing: "Preparando vectores de comparacion...",
+    progressComparing: "Comparando parejas ({current}/{total})...",
+    progressRendering: "Generando resultados...",
+    progressCompleted: "Analisis completado.",
+    progressFailed: "Analisis interrumpido.",
     resultsHeading: "Resultados",
     studentAHeader: "Alumno A",
     studentBHeader: "Alumno B",
@@ -101,7 +126,7 @@ const TRANSLATIONS = {
     sharedShinglesHeader: "Shingles compartidos (muestra)",
     thresholdInvalid: "El umbral debe estar entre 0 y 1.",
     commonPctInvalid: "El porcentaje de linea comun debe estar entre 0 y 100.",
-    readingSubmissions: "Leyendo entregas y descomprimiendo ZIP...",
+    readingSubmissions: "Archivas esta leyendo entregas y descomprimiendo ZIP...",
     noEnoughText: "No hay suficiente texto analizable. Se necesitan al menos 2 entregas con contenido.",
     removingCommon: "Eliminando contenido comun y parte comun base...",
     lowSignal:
@@ -153,6 +178,16 @@ const TRANSLATIONS = {
     archiveNote:
       "Note: ZIP/RAR/7z archives, text-based PDF, DOCX/ODT and XLSX/ODS/CSV spreadsheets are read when possible; unreadable files will be listed as not analyzed or ignored.",
     analyzeButton: "Analyze similarity",
+    analyzeButtonBusy: "Analyzing...",
+    progressIdle: "Waiting for analysis...",
+    progressPreparing: "Preparing analysis...",
+    progressReading: "Archivas is reading submissions ({current}/{total})...",
+    progressFiltering: "Cleaning common text...",
+    progressVectorizing: "Preparing comparison vectors...",
+    progressComparing: "Comparing pairs ({current}/{total})...",
+    progressRendering: "Generating results...",
+    progressCompleted: "Analysis completed.",
+    progressFailed: "Analysis interrupted.",
     resultsHeading: "Results",
     studentAHeader: "Student A",
     studentBHeader: "Student B",
@@ -160,7 +195,7 @@ const TRANSLATIONS = {
     sharedShinglesHeader: "Shared shingles (sample)",
     thresholdInvalid: "The threshold must be between 0 and 1.",
     commonPctInvalid: "The common-line percentage must be between 0 and 100.",
-    readingSubmissions: "Reading submissions and decompressing ZIP files...",
+    readingSubmissions: "Archivas is reading submissions and decompressing ZIP files...",
     noEnoughText: "There is not enough analyzable text. At least 2 submissions with content are required.",
     removingCommon: "Removing common content and base common part...",
     lowSignal:
@@ -246,6 +281,11 @@ const MAX_TOTAL_UNCOMPRESSED_BYTES = Number.POSITIVE_INFINITY;
 const LIBARCHIVE_MODULE_PATH = "./vendor/libarchive/libarchive.js";
 let libArchivePromise = null;
 let autoMoodleZipFile = null;
+let activeProgress = {
+  labelKey: "progressIdle",
+  percent: 0,
+  values: {}
+};
 
 function setStatus(message, isError = false) {
   statusNode.textContent = message;
@@ -255,6 +295,44 @@ function setStatus(message, isError = false) {
 function clearResults() {
   summaryNode.textContent = "";
   resultsBody.innerHTML = "";
+}
+
+function clampProgress(percent) {
+  return Math.max(0, Math.min(100, Math.round(percent)));
+}
+
+function setProgress(percent, labelKey, values = {}) {
+  const safePercent = clampProgress(percent);
+  activeProgress = { labelKey, percent: safePercent, values };
+  analysisProgress.hidden = false;
+  analysisProgress.classList.toggle("is-running", safePercent > 0 && safePercent < 100);
+  progressLabel.textContent = t(labelKey, values);
+  progressPercent.textContent = `${safePercent}%`;
+  progressBar.style.width = `${safePercent}%`;
+  progressTrack.setAttribute("aria-valuenow", String(safePercent));
+  progressTrack.setAttribute("aria-valuetext", `${safePercent}% - ${progressLabel.textContent}`);
+}
+
+function resetProgress() {
+  activeProgress = { labelKey: "progressIdle", percent: 0, values: {} };
+  analysisProgress.hidden = true;
+  analysisProgress.classList.remove("is-running");
+  progressLabel.textContent = t("progressIdle");
+  progressPercent.textContent = "0%";
+  progressBar.style.width = "0%";
+  progressTrack.setAttribute("aria-valuenow", "0");
+  progressTrack.setAttribute("aria-valuetext", `0% - ${progressLabel.textContent}`);
+}
+
+function setAnalyzeButtonBusy(isBusy) {
+  analyzeButton.disabled = Boolean(isBusy);
+  analyzeButton.textContent = t(isBusy ? "analyzeButtonBusy" : "analyzeButton");
+}
+
+function nextFrame() {
+  return new Promise((resolve) => {
+    requestAnimationFrame(() => resolve());
+  });
 }
 
 function t(key, values = {}) {
@@ -289,6 +367,11 @@ function applyLanguage(lang) {
     node.textContent = t(node.dataset.i18n);
   });
   document.title = t("analyzerTitle");
+  progressLabel.textContent = t(activeProgress.labelKey, activeProgress.values);
+  progressTrack.setAttribute("aria-valuetext", `${activeProgress.percent}% - ${progressLabel.textContent}`);
+  if (analyzeButton.disabled) {
+    analyzeButton.textContent = t("analyzeButtonBusy");
+  }
   document.querySelectorAll(".lang-button").forEach((button) => {
     button.classList.toggle("active", button.dataset.lang === currentLang);
   });
@@ -1101,22 +1184,27 @@ async function ingestFileObject(file, submissionMap, stats) {
   stats.ignoredFiles += 1;
 }
 
-async function loadSubmissionDocuments() {
+async function loadSubmissionDocuments(onProgress = null) {
   const submissionMap = new Map();
   const stats = createStats();
 
   const moodleZipFile = moodleZipInput.files?.[0] || autoMoodleZipFile;
   if (moodleZipFile) {
+    onProgress?.(0, 1);
     const bytes = new Uint8Array(await moodleZipFile.arrayBuffer());
     await ingestBytes(moodleZipFile.name, bytes, submissionMap, stats, 0);
+    onProgress?.(1, 1);
   } else {
     const files = Array.from(submissionsInput.files || []);
     if (files.length === 0) {
       throw new Error(t("selectSubmissions"));
     }
 
-    for (const file of files) {
+    onProgress?.(0, files.length);
+    for (let i = 0; i < files.length; i += 1) {
+      const file = files[i];
       await ingestFileObject(file, submissionMap, stats);
+      onProgress?.(i + 1, files.length);
     }
   }
 
@@ -1351,8 +1439,12 @@ function classifyScore(score) {
   return { label: t("low"), className: "low" };
 }
 
-function compareAllPairs(vectors) {
+async function compareAllPairs(vectors, onProgress = null) {
   const pairs = [];
+  const totalPairs = (vectors.length * (vectors.length - 1)) / 2;
+  let comparedPairs = 0;
+  let lastYieldAt = 0;
+
   for (let i = 0; i < vectors.length; i += 1) {
     for (let j = i + 1; j < vectors.length; j += 1) {
       const a = vectors[i];
@@ -1363,6 +1455,13 @@ function compareAllPairs(vectors) {
         score: jaccardSimilarity(a, b),
         sharedTerms: sampleSharedTerms(a, b)
       });
+      comparedPairs += 1;
+
+      if (comparedPairs - lastYieldAt >= 100 || comparedPairs === totalPairs) {
+        onProgress?.(comparedPairs, totalPairs);
+        lastYieldAt = comparedPairs;
+        await nextFrame();
+      }
     }
   }
   return pairs.sort((x, y) => y.score - x.score);
@@ -1417,6 +1516,7 @@ function renderResults(pairs, threshold, docsCount, commonLinesCount, statementL
 
 analyzeButton.addEventListener("click", async () => {
   clearResults();
+  resetProgress();
 
   const threshold = Number(thresholdInput.value);
   const commonPct = Number(commonLinePctInput.value);
@@ -1430,15 +1530,25 @@ analyzeButton.addEventListener("click", async () => {
   }
 
   try {
+    setAnalyzeButtonBusy(true);
+    setProgress(5, "progressPreparing");
+    await nextFrame();
+
     setStatus(t("readingSubmissions"));
-    const { docs, stats } = await loadSubmissionDocuments();
+    const { docs, stats } = await loadSubmissionDocuments((current, total) => {
+      const readProgress = total > 0 ? current / total : 1;
+      setProgress(10 + readProgress * 35, "progressReading", { current, total });
+    });
     const nonEmptyDocs = docs.filter((doc) => doc.lines.length > 0);
     if (nonEmptyDocs.length < 2) {
+      setProgress(100, "progressFailed");
       setStatus(t("noEnoughText"), true);
       return;
     }
 
     setStatus(t("removingCommon"));
+    setProgress(50, "progressFiltering");
+    await nextFrame();
     const statementLines = await readStatementLines(statementInput.files);
     const commonLines = buildCommonLineSet(nonEmptyDocs, commonPct);
 
@@ -1449,13 +1559,25 @@ analyzeButton.addEventListener("click", async () => {
 
     const docsWithSignal = filteredDocs.filter((doc) => doc.filteredLines.length >= 12);
     if (docsWithSignal.length < 2) {
+      setProgress(100, "progressFailed");
       setStatus(t("lowSignal"), true);
       return;
     }
 
     setStatus(t("calculating"));
+    setProgress(65, "progressVectorizing");
+    await nextFrame();
     const vectors = buildShingleVectors(docsWithSignal);
-    const pairs = compareAllPairs(vectors);
+    const totalPairs = (vectors.length * (vectors.length - 1)) / 2;
+    const pairs = await compareAllPairs(vectors, (current, total) => {
+      const compareProgress = total > 0 ? current / total : 1;
+      setProgress(70 + compareProgress * 22, "progressComparing", {
+        current,
+        total: total || totalPairs
+      });
+    });
+    setProgress(95, "progressRendering");
+    await nextFrame();
     renderResults(
       pairs,
       threshold,
@@ -1472,8 +1594,12 @@ analyzeButton.addEventListener("click", async () => {
         ignoredFiles: stats.ignoredFiles
       })
     );
+    setProgress(100, "progressCompleted");
   } catch (error) {
+    setProgress(100, "progressFailed");
     setStatus(error?.message || t("unexpectedAnalysis"), true);
+  } finally {
+    setAnalyzeButtonBusy(false);
   }
 });
 

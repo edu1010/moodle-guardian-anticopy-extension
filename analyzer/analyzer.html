@@ -77,6 +77,23 @@
           Nota: se intentan leer ZIP/RAR/7z, PDF con texto, DOCX/ODT y hojas XLSX/ODS/CSV; si algun archivo no puede leerse, se listara como no analizado o ignorado.
         </p>
         <button id="analyzeButton" data-i18n="analyzeButton">Analizar similitud</button>
+        <div id="analysisProgress" class="progressPanel" hidden aria-live="polite">
+          <div class="progressHeader">
+            <span id="progressLabel" data-i18n="progressIdle">Esperando analisis...</span>
+            <span id="progressPercent">0%</span>
+          </div>
+          <div
+            id="progressTrack"
+            class="progressTrack"
+            role="progressbar"
+            aria-labelledby="progressLabel"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            aria-valuenow="0"
+          >
+            <div id="progressBar" class="progressBar"></div>
+          </div>
+        </div>
         <p id="status" class="status" aria-live="polite"></p>
       </section>
 
