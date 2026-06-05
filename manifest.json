@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Moodle Guardian Anticheat",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Automatiza la descarga de entregas en Moodle y analiza similitud entre trabajos.",
   "icons": {
     "16": "assets/icon16.png",
